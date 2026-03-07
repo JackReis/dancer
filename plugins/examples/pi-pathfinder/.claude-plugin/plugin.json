@@ -1,7 +1,7 @@
 {
   "name": "pi-pathfinder",
-  "version": "1.0.0",
-  "description": "PI Pathfinder - Finds the path through 229 plugins. Automatically picks the best plugin for your task, extracts its skills, and applies them. You don't pick plugins, PI does.",
+  "version": "2.0.0",
+  "description": "PI Pathfinder - Routes your task to the best installed plugin. Builds a searchable index of all plugins, matches user intent by keywords and descriptions, and invokes the best match via the Skill tool.",
   "author": {
     "name": "Jeremy Longshore",
     "email": "[email protected]"
