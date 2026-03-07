@@ -4,8 +4,11 @@ pi-pathfinder index builder.
 Scans ~/.claude/plugins/cache/ and builds a searchable JSON index
 of all installed plugins, their skills, commands, agents, and hooks.
 """
+import argparse
 import json
 import re
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional, List
 
@@ -130,3 +133,73 @@ def scan_plugin(plugin_version_dir: Path, marketplace: str) -> Optional[Dict]:
         "commands": commands,
         "agents": agents,
     }
+
+
+SELF_NAME = "pi-pathfinder"
+DEFAULT_CACHE_DIR = Path.home() / ".claude" / "plugins" / "cache"
+
+
+def build_index(cache_dir: Path) -> Dict:
+    """Build a searchable index of all installed plugins."""
+    plugins = []
+    skill_count = 0
+
+    if not cache_dir.exists():
+        return {
+            "built_at": datetime.now(timezone.utc).isoformat(),
+            "plugin_count": 0,
+            "skill_count": 0,
+            "cache_dir": str(cache_dir),
+            "plugins": [],
+        }
+
+    for marketplace_dir in sorted(cache_dir.iterdir()):
+        if not marketplace_dir.is_dir():
+            continue
+        marketplace_name = marketplace_dir.name
+
+        for plugin_dir in sorted(marketplace_dir.iterdir()):
+            if not plugin_dir.is_dir():
+                continue
+            if plugin_dir.name == SELF_NAME:
+                continue
+
+            for version_dir in sorted(plugin_dir.iterdir()):
+                if not version_dir.is_dir():
+                    continue
+                result = scan_plugin(version_dir, marketplace_name)
+                if result:
+                    plugins.append(result)
+                    skill_count += len(result["skills"])
+                break
+
+    return {
+        "built_at": datetime.now(timezone.utc).isoformat(),
+        "plugin_count": len(plugins),
+        "skill_count": skill_count,
+        "cache_dir": str(cache_dir),
+        "plugins": plugins,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Build pi-pathfinder plugin index")
+    parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR,
+                        help="Path to plugin cache directory")
+    parser.add_argument("--output", "-o", type=Path, default=None,
+                        help="Output path for index JSON")
+    args = parser.parse_args()
+
+    output = args.output or (Path(__file__).parent / "plugin-index.json")
+
+    print(f"Scanning {args.cache_dir}...")
+    index = build_index(args.cache_dir)
+    print(f"Found {index['plugin_count']} plugins with {index['skill_count']} skills")
+
+    with open(output, "w") as f:
+        json.dump(index, f, indent=2)
+    print(f"Index written to {output}")
+
+
+if __name__ == "__main__":
+    main()

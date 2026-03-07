@@ -9,7 +9,7 @@ from pathlib import Path
 # Import from same directory
 import sys
 sys.path.insert(0, os.path.dirname(__file__))
-from build_index import parse_frontmatter, scan_plugin
+from build_index import parse_frontmatter, scan_plugin, build_index
 
 
 class TestParseFrontmatter(unittest.TestCase):
@@ -112,6 +112,63 @@ class TestScanPlugin(unittest.TestCase):
         result = scan_plugin(no_skills, "test-marketplace")
         self.assertEqual(result["name"], "no-skills")
         self.assertEqual(result["skills"], [])
+
+
+class TestBuildIndex(unittest.TestCase):
+    """Test building the full plugin index."""
+
+    def setUp(self):
+        """Create a fake cache directory with 2 marketplaces, 3 plugins."""
+        self.tmpdir = tempfile.mkdtemp()
+        self.cache_dir = Path(self.tmpdir) / "cache"
+
+        # Marketplace 1: two plugins
+        for name, desc, kw in [
+            ("formatter", "Format code with Prettier", ["format", "prettier"]),
+            ("secret-scanner", "Scan for exposed secrets", ["security", "secrets"]),
+        ]:
+            pdir = self.cache_dir / "marketplace-a" / name / "1.0.0"
+            (pdir / ".claude-plugin").mkdir(parents=True)
+            (pdir / ".claude-plugin" / "plugin.json").write_text(
+                json.dumps({"name": name, "description": desc, "keywords": kw, "version": "1.0.0"})
+            )
+            (pdir / "skills" / name).mkdir(parents=True)
+            (pdir / "skills" / name / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: {desc}\n---\n"
+            )
+
+        # Marketplace 2: one plugin that should be self-excluded
+        pdir = self.cache_dir / "marketplace-b" / "pi-pathfinder" / "1.0.0"
+        (pdir / ".claude-plugin").mkdir(parents=True)
+        (pdir / ".claude-plugin" / "plugin.json").write_text(
+            '{"name": "pi-pathfinder", "description": "Plugin router", "version": "1.0.0"}'
+        )
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmpdir)
+
+    def test_build_index_finds_all_plugins(self):
+        index = build_index(self.cache_dir)
+        self.assertEqual(index["plugin_count"], 2)  # pi-pathfinder excluded
+        names = [p["name"] for p in index["plugins"]]
+        self.assertIn("formatter", names)
+        self.assertIn("secret-scanner", names)
+        self.assertNotIn("pi-pathfinder", names)
+
+    def test_build_index_has_metadata(self):
+        index = build_index(self.cache_dir)
+        self.assertIn("built_at", index)
+        self.assertIn("plugin_count", index)
+        self.assertIn("skill_count", index)
+        self.assertEqual(index["skill_count"], 2)
+
+    def test_build_index_empty_cache(self):
+        empty = Path(self.tmpdir) / "empty-cache"
+        empty.mkdir()
+        index = build_index(empty)
+        self.assertEqual(index["plugin_count"], 0)
+        self.assertEqual(index["plugins"], [])
 
 
 if __name__ == "__main__":
