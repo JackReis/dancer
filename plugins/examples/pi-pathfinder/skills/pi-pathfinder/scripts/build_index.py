@@ -4,9 +4,10 @@ pi-pathfinder index builder.
 Scans ~/.claude/plugins/cache/ and builds a searchable JSON index
 of all installed plugins, their skills, commands, agents, and hooks.
 """
+import json
 import re
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, List
 
 
 def parse_frontmatter(content: str) -> Dict[str, str]:
@@ -58,3 +59,74 @@ def parse_frontmatter(content: str) -> Dict[str, str]:
         i += 1
 
     return result
+
+
+def scan_plugin(plugin_version_dir: Path, marketplace: str) -> Optional[Dict]:
+    """Scan a single plugin directory and extract metadata.
+
+    Args:
+        plugin_version_dir: Path like cache/<marketplace>/<plugin>/<version>/
+        marketplace: Name of the marketplace this plugin belongs to
+
+    Returns:
+        Dict with plugin metadata, or None if invalid plugin.
+    """
+    plugin_json_path = plugin_version_dir / ".claude-plugin" / "plugin.json"
+    if not plugin_json_path.exists():
+        return None
+
+    try:
+        with open(plugin_json_path) as f:
+            pj = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    plugin_name = pj.get("name", plugin_version_dir.parent.name)
+
+    # Scan skills
+    skills = []
+    skills_dir = plugin_version_dir / "skills"
+    if skills_dir.exists():
+        for skill_dir in sorted(skills_dir.iterdir()):
+            skill_md = skill_dir / "SKILL.md"
+            if skill_md.exists():
+                fm = parse_frontmatter(skill_md.read_text())
+                skill_name = fm.get("name", skill_dir.name)
+                skills.append({
+                    "name": skill_name,
+                    "description": fm.get("description", ""),
+                    "skill_path": f"{plugin_name}:{skill_name}",
+                })
+
+    # Scan commands
+    commands = []
+    commands_dir = plugin_version_dir / "commands"
+    if commands_dir.exists():
+        for cmd_file in sorted(commands_dir.glob("*.md")):
+            fm = parse_frontmatter(cmd_file.read_text())
+            commands.append({
+                "name": fm.get("name", cmd_file.stem),
+                "description": fm.get("description", ""),
+            })
+
+    # Scan agents
+    agents = []
+    agents_dir = plugin_version_dir / "agents"
+    if agents_dir.exists():
+        for agent_file in sorted(agents_dir.glob("*.md")):
+            fm = parse_frontmatter(agent_file.read_text())
+            agents.append({
+                "name": fm.get("name", agent_file.stem),
+                "description": fm.get("description", ""),
+            })
+
+    return {
+        "name": plugin_name,
+        "marketplace": marketplace,
+        "version": pj.get("version", "unknown"),
+        "description": pj.get("description", ""),
+        "keywords": pj.get("keywords", []),
+        "skills": skills,
+        "commands": commands,
+        "agents": agents,
+    }
