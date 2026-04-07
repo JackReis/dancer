@@ -707,3 +707,6 @@ This repo is part of an 18-repo portfolio coordinated from the `=notes` vault.
 - Build: `pnpm run build`
 - Lint/typecheck/test: `pnpm run lint && pnpm run typecheck && pnpm run test`
 - Marketplace sync: `pnpm run sync-marketplace`
+
+## SESSION LOGGING
+Mandatory Requirement: Maintain immaculate session logs across ALL repositories in the ecosystem. Every session must result in a detailed log in 'logs/sessions/YYYY-MM/' (or the repository's designated log directory), capturing objectives, achievements, changes committed, and next actions. This is a core responsibility of both Neo (Orchestrator) and PT (Lead Engineer) to preserve context and ensure seamless multi-session coordination.
