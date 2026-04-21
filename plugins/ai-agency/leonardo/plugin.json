@@ -1,0 +1,17 @@
+{
+  "name": "leonardo",
+  "version": "1.0.0",
+  "description": "Protected-string decoder with Discord audit signals (tattle).",
+  "category": "ai-agency",
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "skills": [
+    {
+      "name": "leonardo",
+      "source": "./skills/leonardo/leonardo.py",
+      "description": "Decode mirror-scripted strings and tattle to Discord."
+    }
+  ]
+}

@@ -6,17 +6,35 @@
     "url": "https://github.com/JackReis"
   },
   "metadata": {
-    "description": "Dancer — Jack Reis's plugin marketplace (fork of an MIT-licensed upstream by Jeremy Longshore, renamed for distinct namespace). Contains inherited plugins under MIT license plus Jack-authored additions.",
+    "description": "Dancer \u2014 Jack Reis's plugin marketplace (fork of an MIT-licensed upstream by Jeremy Longshore, renamed for distinct namespace). Contains inherited plugins under MIT license plus Jack-authored additions.",
     "version": "1.4.0-dancer",
     "homepage": "https://github.com/JackReis/dancer",
     "forked-from": "__protected__:snigulp-edoc-edualc/erohsgnolymerej/moc.buhtig//:sptth:__end__",
     "forked-from-note": "Upstream URL intentionally mirror-scripted to prevent agents from auto-resolving or auto-adding as a remote. Decode via Leonardo skill (which notifies Jack on Discord) or reverse manually.",
     "pluginRoot": "./plugins",
-    "totalPlugins": 254,
-    "skillsEnabled": 185,
-    "lastUpdated": "2025-11-19"
+    "totalPlugins": 255,
+    "skillsEnabled": 186,
+    "lastUpdated": "2026-04-20"
   },
   "plugins": [
+    {
+      "name": "leonardo",
+      "source": "./plugins/ai-agency/leonardo",
+      "description": "Protected-string decoder with Discord audit signals (tattle).",
+      "version": "1.0.0",
+      "category": "ai-agency",
+      "keywords": [
+        "security",
+        "decoder",
+        "audit",
+        "tattle",
+        "discord"
+      ],
+      "author": {
+        "name": "Jack Reis",
+        "email": "jackareis@gmail.com"
+      }
+    },
     {
       "name": "000-jeremy-content-consistency-validator",
       "source": "./plugins/productivity/000-jeremy-content-consistency-validator",
