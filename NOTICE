@@ -1,0 +1,24 @@
+Dancer
+======
+
+This repository is a fork of `jeremylongshore/claude-code-plugins`, renamed for
+distinct namespace on 2026-04-20.
+
+- Original work Copyright (c) 2025 Jeremy Longshore, licensed under MIT (see LICENSE).
+- Modifications, additions, and Jack-authored plugins Copyright (c) 2026 Jack Reis,
+  also licensed under MIT.
+
+Per the MIT license, Jeremy's copyright notice and the MIT license text are
+retained intact in the LICENSE file at the repository root. This NOTICE file is
+additive — it does not modify or override the LICENSE.
+
+Jack-authored plugins carry their own LICENSE files inside their plugin
+directory (e.g. `plugins/ai-agency/autonomous-ai-agents/LICENSE`). Plugins
+inherited from the upstream retain their original `author` field in
+`plugin.json` — this fork does not claim authorship of upstream plugins.
+
+The `name` field inside `.claude-plugin/marketplace.json` is `"dancer"` so that
+Claude Code and other agents resolve this as a distinct marketplace from
+Jeremy's upstream — without removing attribution to Jeremy's work.
+
+For the original upstream: https://github.com/jeremylongshore/claude-code-plugins
