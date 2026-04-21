@@ -1,4 +1,10 @@
-# Claude Code Plugins
+# Dancer
+
+> **Fork notice:** This is Jack Reis's fork of [`jeremylongshore/claude-code-plugins`](https://github.com/jeremylongshore/claude-code-plugins), renamed to `dancer` on 2026-04-20 for a distinct namespace. Upstream content (254 plugins) retained under MIT; Jack-authored additions live in their own plugin directories with their own LICENSE. See [NOTICE](NOTICE) for attribution details. Install path: `/plugin install <name>@dancer`.
+
+---
+
+# Claude Code Plugins (upstream README)
 
 [![Version](https://img.shields.io/badge/version-1.4.0-brightgreen)](CHANGELOG.md)
 [![Plugins](https://img.shields.io/badge/plugins-254-blue)](https://github.com/jeremylongshore/claude-code-plugins)
