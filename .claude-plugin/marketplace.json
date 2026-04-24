@@ -3020,8 +3020,8 @@
     {
       "name": "autonomous-ai-agents",
       "source": "./plugins/ai-agency/autonomous-ai-agents",
-      "description": "Fleet-coordination plugin. v0.1 shipped fleet-identity skill (who runs Wings/Zoe/Mara/Kopi). v0.2 ships the Hermes messaging bridge via native 'hermes mcp serve' (10 tools across Telegram/Discord/Slack/WhatsApp/Signal/Matrix) + hermes-bridge companion skill. Wings (Hermes) + Zoe (Zolivier) are the fleet's shared async-messaging substrate for heads-down thinkers (Claude, Gemini, ChatGPT).",
-      "version": "0.2.0",
+      "description": "Fleet-coordination plugin. v0.1: fleet-identity skill (who runs Wings/Zoe/Mara/Kopi). v0.2: Hermes (Wings) messaging bridge via 'hermes mcp serve' (10 tools) + hermes-bridge skill. v0.3: OpenClaw (Zolivier/Zoe) messaging bridge via 'openclaw mcp serve' (9 tools) + openclaw-bridge skill (with Klawz security disclosure). Wings + Zoe are the fleet's shared async-messaging substrate; this plugin wires Claude Code's side of both halves.",
+      "version": "0.3.0",
       "category": "ai-agency",
       "keywords": [
         "fleet",
@@ -3030,8 +3030,12 @@
         "hermes",
         "wings",
         "zolivier",
-        "kimiclaw",
+        "zoe",
         "openclaw",
+        "kimiclaw",
+        "mara",
+        "kopi",
+        "klawz",
         "discord",
         "telegram",
         "slack",
@@ -3040,7 +3044,8 @@
         "matrix",
         "mcp",
         "messaging",
-        "coordination"
+        "coordination",
+        "tipi"
       ],
       "author": {
         "name": "Jack Reis",
