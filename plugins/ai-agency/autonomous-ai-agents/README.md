@@ -1,10 +1,18 @@
 # autonomous-ai-agents
 
-Fleet-identity lookup for Jack Reis's autonomous AI agent fleet.
+Fleet-coordination plugin for Jack Reis's autonomous AI agent fleet. Lets Claude Code answer "who is X?" across the fleet's Discord/Telegram surfaces, and — as of v0.2 — reach the Hermes messaging bridge as a native MCP server.
 
-## What it does
+## What's new in v0.2
 
-Exposes a single Claude Code skill — `fleet-identity` — that answers "who is X?" for the agent fleet without duplicating data.
+- **Hermes messaging bridge** — native `hermes mcp serve` wired as the `hermes` MCP server, exposing 10 tools for reading/sending messages across Telegram, Discord, Slack, WhatsApp, Signal, and Matrix surfaces.
+- **`hermes-bridge` companion skill** — documents when/how to use the bridge and when to fall back to the `hermes-cli` skill for one-shot delegation.
+- **No Python shim** — uses Hermes's built-in MCP server directly.
+
+Mental model: Wings (Hermes) and Zoe (Zolivier) are the fleet's shared async-messaging substrate. Heads-down thinkers (Claude Code, Gemini CLI, ChatGPT) come back to them to catch up across session boundaries. This plugin wires Claude Code's side of Wings; a v0.3 follow-on is expected to wire Zolivier/Zoe via OpenClaw.
+
+## What it does (v0.1 carry-over)
+
+Ships the `fleet-identity` skill — answers "who is X?" for the fleet without duplicating data.
 
 Canonical mapping lives at `~/Documents/Coordination/<date>-identity-mapping.md`. The skill reads from there (or a vault mirror as fallback) and returns semantic intent pairs:
 
@@ -12,27 +20,50 @@ Canonical mapping lives at `~/Documents/Coordination/<date>-identity-mapping.md`
 - Zolivier → Zoe (Discord)
 - KimiClaw → Mara (Discord) / Kopi (Telegram)
 
-Runtime agents vs. platform surfaces: Hermes and Zolivier are local runtimes (Hermes Agent by Nous Research, OpenClaw gateway respectively). Wings, Zoe, Mara, Kopi are the Discord/Telegram bot accounts that relay to/from them. KimiClaw is cloud OpenClaw. Dizzy is a separate Claude-Code-session primitive and is intentionally not in this mapping.
+Runtime agents vs. platform surfaces: Hermes and Zolivier are local runtimes (Hermes Agent by Nous Research, OpenClaw gateway respectively). Wings / Zoe / Mara / Kopi are the Discord/Telegram bot accounts that relay to/from them. KimiClaw is cloud OpenClaw. Dizzy is a separate Claude-Code-session primitive and is intentionally not in this mapping.
 
 ## Install
 
-From the `jack-plugins` marketplace (Jack's fork of claude-code-plugins-plus, registered as a distinct marketplace to avoid name collision with Jeremy Longshore's upstream):
+From the `dancer` marketplace:
 
 ```
-/plugin install autonomous-ai-agents@jack-plugins
+/plugin install autonomous-ai-agents@dancer
 ```
+
+The marketplace lives at `github:JackReis/dancer` (mirror at `gitlab:jackrei/dancer`). Register in `~/.claude/settings.json` under `extraKnownMarketplaces`.
 
 Or load from a local path during development:
 
 ```
-/plugin install path:/Users/jack.reis/Documents/claude-code-plugins-plus/plugins/ai-agency/autonomous-ai-agents
+/plugin install path:/Users/jack.reis/Documents/dancer/plugins/ai-agency/autonomous-ai-agents
 ```
 
-The `jack-plugins` marketplace is registered in `~/.claude/settings.json` under `extraKnownMarketplaces` and points at `github:JackReis/claude-code-plugins-plus`.
+## Hermes MCP setup
+
+Prerequisites:
+
+- Hermes Agent installed (<https://hermes-agent.nousresearch.com>).
+- `hermes` binary on PATH (`which hermes` should resolve).
+
+When the plugin is enabled, the `hermes` MCP server auto-activates via `plugin.json`'s `mcpServers` block. Tool calls resolve to `mcp__hermes__<tool_name>`.
+
+For vault-scoped wiring independent of plugin state, add an equivalent entry to your project `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "hermes": {
+      "type": "stdio",
+      "command": "hermes",
+      "args": ["mcp", "serve"]
+    }
+  }
+}
+```
 
 ## Usage
 
-Trigger phrases:
+### fleet-identity trigger phrases
 
 - "Who is Wings?" / "Who runs Kopi?" / "What agent is Zoe?"
 - "Fleet identity" / "fleet mapping" / "agent mapping" / "identity map"
@@ -40,22 +71,29 @@ Trigger phrases:
 
 The skill finds the latest `*-identity-mapping.md` in `~/Documents/Coordination/` and returns the relevant rows.
 
+### hermes-bridge trigger phrases
+
+- "Check hermes" / "catch me up" / "what came in while I was working"
+- "Any pending approvals" / "what's on telegram" / "reply via hermes"
+- "Wings says" / "messages waiting"
+
+The skill polls Hermes's event queue, reads/sends messages, and approves/denies pending tool calls. See `skills/hermes-bridge/SKILL.md` for the 10-tool surface and procedures.
+
 ## Data source
 
-The plugin **does not bundle** the mapping. It points at the canonical file Jack maintains in his Documents/Coordination folder so there's exactly one source of truth.
-
-Updating the mapping (e.g., adding a new agent:surface pair): edit `~/Documents/Coordination/<today>-identity-mapping.md` directly. The skill picks up changes on next invocation — no plugin reinstall.
+The plugin **does not bundle** the fleet mapping. It points at the canonical file Jack maintains in `~/Documents/Coordination/` so there's exactly one source of truth. Edit `~/Documents/Coordination/<today>-identity-mapping.md` directly to update; the skill picks up changes on next invocation.
 
 If `~/Documents/Coordination/` is missing or empty, the skill falls back to the vault mirror at `=notes/inbox/agent-coordination.md`.
 
 ## Roadmap
 
-- **v0.1** (this release) — `fleet-identity` skill only.
-- **v0.2** (planned) — Hermes MCP integration: wire the Nous Research Hermes Agent multi-platform gateway as an MCP server so Claude Code can delegate tasks directly to Hermes, parallel to the existing OpenClaw MCP wiring for Zolivier. Scoped in a separate `/superplan` (see `docs/plans/2026-04-21-autonomous-ai-agent-Hermes-MCP.md` in the vault when that superplan ships).
+- **v0.1** (shipped 2026-04-20) — `fleet-identity` skill.
+- **v0.2** (this release, 2026-04-24) — Hermes MCP messaging bridge + `hermes-bridge` skill. Plan: `=notes/docs/plans/2026-04-24-autonomous-ai-agent-Hermes-MCP-impl.md`.
+- **v0.3** (planned) — Zolivier/Zoe MCP wiring via OpenClaw, analogous to the Hermes side.
 
 ## Related
 
-- OpenClaw MCP (already wired in Jack's Claude Code config, 2026-04-19) — handles Zolivier-side delegation.
+- Sibling skill `hermes-cli` (in `=notes/.claude/skills/hermes-cli/`) — TTY one-shot delegation via `hermes chat -Q -q`. Complementary to `hermes-bridge`.
 - `dizzy.py` IDENTITIES (in `=notes/claude/scripts/`) — Discord routing primitive (tokens, channels). Different concern from semantic identity.
 - Hermes Agent: <https://hermes-agent.nousresearch.com/>
 
