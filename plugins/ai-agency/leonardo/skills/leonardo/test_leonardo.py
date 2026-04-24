@@ -7,7 +7,10 @@ Run locally with:
 """
 
 import importlib.util
+import os
 import re
+import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -108,6 +111,107 @@ class MultiLineDecodeTests(unittest.TestCase):
         matches = leonardo.SENTINEL_RE.findall(wrapper)
         self.assertEqual(len(matches), 1)
         self.assertEqual(leonardo.decode_string(matches[0]), original)
+
+
+class _IsolatedState:
+    """Mixin that gives each test isolated state files + audit log.
+
+    Avoids pollution of real ~/.claude/leonardo-* files and logs/leonardo-audit.log.
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self._old_env = {}
+        self._set_env("LEONARDO_RATELIMIT_FILE", str(Path(self.tmpdir.name) / "rl.json"))
+        self._set_env("LEONARDO_RATELIMIT_MAX", "10")
+        self._set_env("LEONARDO_RATELIMIT_WINDOW_SEC", "60")
+        self._set_env("LEONARDO_DEDUPE_FILE", str(Path(self.tmpdir.name) / "dd.json"))
+        self._set_env("LEONARDO_DEDUPE_TTL_SEC", "300")
+        self._old_audit_log = leonardo.AUDIT_LOG
+        leonardo.AUDIT_LOG = Path(self.tmpdir.name) / "audit.log"
+
+    def tearDown(self):
+        for k, v in self._old_env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        leonardo.AUDIT_LOG = self._old_audit_log
+        self.tmpdir.cleanup()
+
+    def _set_env(self, key, value):
+        self._old_env[key] = os.environ.get(key)
+        os.environ[key] = value
+
+
+class RateLimitTests(_IsolatedState, unittest.TestCase):
+    """Hardening A.3: 10/60s default, env-tunable, per-caller, with audit trail."""
+
+    def test_allows_under_threshold(self):
+        for i in range(10):
+            self.assertTrue(
+                leonardo.check_ratelimit("caller-a"),
+                f"call {i + 1}/10 should be allowed",
+            )
+
+    def test_suppresses_after_threshold(self):
+        for _ in range(10):
+            leonardo.check_ratelimit("caller-a")
+        self.assertFalse(leonardo.check_ratelimit("caller-a"))
+
+    def test_per_caller_window_is_independent(self):
+        for _ in range(10):
+            leonardo.check_ratelimit("caller-a")
+        self.assertTrue(leonardo.check_ratelimit("caller-b"))
+
+    def test_suppression_records_audit_line(self):
+        for _ in range(10):
+            leonardo.check_ratelimit("caller-a")
+        leonardo.check_ratelimit("caller-a")
+        audit = leonardo.AUDIT_LOG.read_text()
+        self.assertIn("event=ratelimit_dropped", audit)
+        self.assertIn("caller=caller-a", audit)
+
+
+class DedupeTests(_IsolatedState, unittest.TestCase):
+    """Hardening A.4: hash-based per-caller dedupe with TTL window."""
+
+    def test_first_seen_allowed(self):
+        self.assertTrue(leonardo.check_dedupe("agent-x", "secret content"))
+
+    def test_duplicate_within_window_suppressed(self):
+        self.assertTrue(leonardo.check_dedupe("agent-x", "secret content"))
+        self.assertFalse(leonardo.check_dedupe("agent-x", "secret content"))
+
+    def test_different_content_allowed(self):
+        leonardo.check_dedupe("agent-x", "first")
+        self.assertTrue(leonardo.check_dedupe("agent-x", "second"))
+
+    def test_different_caller_allowed(self):
+        leonardo.check_dedupe("agent-x", "same content")
+        self.assertTrue(leonardo.check_dedupe("agent-y", "same content"))
+
+    def test_ttl_expiry_allows_again(self):
+        os.environ["LEONARDO_DEDUPE_TTL_SEC"] = "0"
+        try:
+            leonardo.check_dedupe("agent-x", "expire me")
+            time.sleep(0.01)
+            self.assertTrue(leonardo.check_dedupe("agent-x", "expire me"))
+        finally:
+            os.environ["LEONARDO_DEDUPE_TTL_SEC"] = "300"
+
+
+class FallbackAuditTests(_IsolatedState, unittest.TestCase):
+    """Hardening A.6: failed tattles write to audit log so events are never lost."""
+
+    def test_fallback_audit_appends_line(self):
+        leonardo.fallback_audit("caller-a", "/tmp/file.md", "test reason", 3)
+        content = leonardo.AUDIT_LOG.read_text()
+        self.assertIn("caller=caller-a", content)
+        self.assertIn("file=/tmp/file.md", content)
+        self.assertIn("reason=test reason", content)
+        self.assertIn("decodes=3", content)
+        self.assertIn("tattle=failed", content)
 
 
 class TattleDispatchTests(unittest.TestCase):

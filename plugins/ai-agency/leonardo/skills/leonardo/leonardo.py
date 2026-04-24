@@ -9,14 +9,161 @@ deliberate operation to Jack's #bots Discord channel via OpenClaw.
 import sys
 import os
 import re
+import json
+import time
+import hashlib
 import subprocess
 import argparse
+from datetime import datetime, timezone
 from pathlib import Path
 
 # --- Configuration ---
 DISCORD_CHANNEL_ID = "1493133989303681064"  # #bots
 VAULT_ROOT = Path("/Users/jack.reis/Documents/=notes")
+AUDIT_LOG = VAULT_ROOT / "logs/leonardo-audit.log"
 SENTINEL_RE = re.compile(r"__protected__:(.*?):__end__", re.DOTALL)
+
+RATELIMIT_DEFAULT_MAX = 10
+RATELIMIT_DEFAULT_WINDOW_SEC = 60
+DEDUPE_DEFAULT_TTL_SEC = 300
+
+
+def _ratelimit_file() -> Path:
+    return Path(os.environ.get(
+        "LEONARDO_RATELIMIT_FILE",
+        str(Path.home() / ".claude" / "leonardo-ratelimit.json"),
+    ))
+
+
+def _ratelimit_max() -> int:
+    return int(os.environ.get("LEONARDO_RATELIMIT_MAX", str(RATELIMIT_DEFAULT_MAX)))
+
+
+def _ratelimit_window_sec() -> int:
+    return int(os.environ.get("LEONARDO_RATELIMIT_WINDOW_SEC", str(RATELIMIT_DEFAULT_WINDOW_SEC)))
+
+
+def _load_ratelimit() -> dict:
+    path = _ratelimit_file()
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_ratelimit(state: dict) -> None:
+    path = _ratelimit_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state))
+
+
+def _record_suppression(caller: str, count: int) -> None:
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).isoformat()
+    line = f"{ts}\tcaller={caller}\tevent=ratelimit_dropped\twindow_count={count}\n"
+    with AUDIT_LOG.open("a", encoding="utf-8") as f:
+        f.write(line)
+
+
+def check_ratelimit(caller: str) -> bool:
+    """Return True if tattle is allowed, False if rate-limited.
+
+    Token bucket per caller, window_sec rolling. State persists across
+    invocations via JSON file. Suppression events go to AUDIT_LOG.
+    """
+    now = time.time()
+    window_sec = _ratelimit_window_sec()
+    max_calls = _ratelimit_max()
+    state = _load_ratelimit()
+    window = [t for t in state.get(caller, []) if now - t < window_sec]
+    if len(window) >= max_calls:
+        _record_suppression(caller, len(window))
+        state[caller] = window
+        _save_ratelimit(state)
+        return False
+    window.append(now)
+    state[caller] = window
+    _save_ratelimit(state)
+    return True
+
+
+def _dedupe_file() -> Path:
+    return Path(os.environ.get(
+        "LEONARDO_DEDUPE_FILE",
+        str(Path.home() / ".claude" / "leonardo-dedupe.json"),
+    ))
+
+
+def _dedupe_ttl() -> int:
+    return int(os.environ.get("LEONARDO_DEDUPE_TTL_SEC", str(DEDUPE_DEFAULT_TTL_SEC)))
+
+
+def _load_dedupe() -> dict:
+    path = _dedupe_file()
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_dedupe(state: dict) -> None:
+    path = _dedupe_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state))
+
+
+def check_dedupe(caller: str, decoded: str) -> bool:
+    """Return True if first-seen (tattle allowed), False if duplicate in TTL window.
+
+    Content-hashed per caller; same operation by same caller inside TTL
+    window suppresses the tattle. Decode/encode still proceeds.
+    """
+    key = hashlib.sha256(f"{caller}:{decoded}".encode()).hexdigest()[:16]
+    now = time.time()
+    ttl = _dedupe_ttl()
+    state = _load_dedupe()
+    state = {k: ts for k, ts in state.items() if now - ts < ttl}
+    if key in state:
+        _save_dedupe(state)
+        return False
+    state[key] = now
+    _save_dedupe(state)
+    return True
+
+
+def fallback_audit(caller: str, file_path: str, reason: str, count: int) -> None:
+    """Append tattle failure to vault audit log so nothing is silently lost."""
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).isoformat()
+    line = (
+        f"{ts}\tcaller={caller}\tfile={file_path}\treason={reason}\t"
+        f"decodes={count}\ttransport=openclaw\ttattle=failed\n"
+    )
+    with AUDIT_LOG.open("a", encoding="utf-8") as f:
+        f.write(line)
+
+
+def _gated_tattle(protected_str, result_str, reason, caller, file_path,
+                  mode="decode", kind="text") -> bool:
+    """Rate-limit + dedupe gate for tattle_to_discord. Same signature as the underlying call.
+
+    Returns True if dispatched, False if suppressed.
+    """
+    if not check_ratelimit(caller):
+        print(f"INFO: tattle rate-limited for caller={caller}", file=sys.stderr)
+        return False
+    if not check_dedupe(caller, result_str):
+        print(f"INFO: tattle deduped for caller={caller}", file=sys.stderr)
+        return False
+    ok = tattle_to_discord(protected_str, result_str, reason, caller, file_path,
+                           mode=mode, kind=kind)
+    if not ok:
+        fallback_audit(caller, file_path, reason, 1)
+    return ok
 
 # Leading human-readable date token: ISO-8601-style YYYY-MM-DD, optionally with time.
 # Group 1 = date/time, group 2 = whitespace separator, group 3 = remainder to protect.
@@ -141,7 +288,7 @@ def main():
         else:
             result = encode_text(args.input)
         print(result)
-        tattle_to_discord(
+        _gated_tattle(
             args.input, result, args.reason, args.caller, args.file,
             mode="encode", kind=args.kind,
         )
@@ -151,7 +298,7 @@ def main():
     if args.kind == "filename":
         result = decode_filename(args.input)
         print(result)
-        tattle_to_discord(
+        _gated_tattle(
             args.input, result, args.reason, args.caller, args.file,
             mode="decode", kind="filename",
         )
@@ -161,7 +308,7 @@ def main():
     if not matches:
         decoded = decode_string(args.input)
         print(decoded)
-        tattle_to_discord(
+        _gated_tattle(
             args.input, decoded, args.reason, args.caller, args.file,
             mode="decode", kind="text",
         )
@@ -171,7 +318,7 @@ def main():
     for match in matches:
         decoded = decode_string(match)
         results.append(decoded)
-        tattle_to_discord(
+        _gated_tattle(
             match, decoded, args.reason, args.caller, args.file,
             mode="decode", kind="text",
         )
