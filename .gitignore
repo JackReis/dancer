@@ -69,3 +69,13 @@ skill-name-mappings.json
 
 # Temporary migration preservation (do not commit)
 _PRESERVE_MIGRATION/
+.gitnexus
+
+# GitNexus auto-installs ~6 skill files into .claude/skills/gitnexus/ on `npx gitnexus analyze`.
+# Runtime install artifact; per-machine. Not source.
+.claude/skills/gitnexus/
+
+# Auto-generated agent runtime memory state (project_memory.json + .lock).
+# Live realtime captures w/ session IDs + timestamps; per-machine. Not source.
+**/.claude/memories/project_memory.json
+**/.claude/memories/project_memory.lock
