@@ -35,6 +35,19 @@ import hashlib
 import pathlib
 import re
 import subprocess
+import unicodedata
+
+# Greek-alphabet fingerprint — mirrors peer_grill_fingerprint.py.
+# Inlined here so the grader has zero import dependencies on its sibling.
+_GREEK_ALPHABET = "αβγδεζηθικλμνξοπρστυφχψω"
+_FP_LEN = 4
+
+
+def fingerprint(claim_id: str) -> str:
+    """Deterministic 4-letter Greek fingerprint of a claim id (NFC-normalized)."""
+    canonical = unicodedata.normalize("NFC", claim_id).encode("utf-8")
+    digest = hashlib.sha256(canonical).digest()
+    return "".join(_GREEK_ALPHABET[b % 24] for b in digest[:_FP_LEN])
 import sys
 
 try:
@@ -185,13 +198,14 @@ def main() -> int:
         f"\n## Grading run — {ts}",
         f"Files graded: {', '.join(f.name for f in claims_files)}",
         "",
-        "| Agent | Claim | Check | Outcome | Detail |",
-        "|---|---|---|---|---|",
+        "| ⟦fp⟧ | Agent | Claim | Check | Outcome | Detail |",
+        "|---|---|---|---|---|---|",
     ]
     for agent, cid, kind, outcome, detail in rows:
         # escape pipes in detail for markdown
         safe = detail.replace("|", "\\|")
-        lines.append(f"| `{agent}` | `{cid}` | {kind} | **{outcome}** | {safe} |")
+        fp = fingerprint(cid)
+        lines.append(f"| ⟦{fp}⟧ | `{agent}` | `{cid}` | {kind} | **{outcome}** | {safe} |")
     lines.append("")
     summary = " · ".join(f"{k}: {v}" for k, v in sorted(counts.items()))
     lines.append(f"**Summary:** {summary}")

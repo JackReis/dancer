@@ -69,6 +69,24 @@ The protocol keeps `RATIFY:` as the default for everyday claims. The Latin tags 
 | Normative, contested | `QUAESTIO` form (full structured disputation) |
 | Foundational principle | TLA+/Alloy AND quaestio form; ratify with `ALETHEIA <sha256>` |
 
+## Greek-alphabet fingerprints
+
+Every claim carries an optional 4-letter Greek **fingerprint** auto-derived from `sha256(NFC(id))`. Display-layer only — never in pathnames, never in canonical-statement hash, never authored.
+
+```python
+GREEK = "αβγδεζηθικλμνξοπρστυφχψω"  # 24 letters
+fingerprint = "".join(GREEK[b % 24] for b in sha256(NFC(id))[:4])
+```
+
+| `id` | `fingerprint` |
+|---|---|
+| `memory-md-truncation` | `⟦τκφε⟧` |
+| `dizzy-clobber-footgun` | `⟦ινξψ⟧` |
+
+Use `peer_grill_fingerprint.py <id>` to compute, or `--batch claims.yaml` to print all. Fingerprints appear in the leftmost column of `graded.md` and in the `Belief.fingerprint` field of the Tipi consciousness contract.
+
+The layering matters: Latin `id` is load-bearing (FS, hash, collision-check); Greek fingerprint is the philosophical register (visual handle, auto-derived, cannot homoglyph-collide because hash function refuses). Same purpose as a git short-sha — give the eye somewhere to land.
+
 ## The ἀλήθεια stamp
 
 When a claim moves to `state.merged.yaml`, append a line to `signoff.md`:

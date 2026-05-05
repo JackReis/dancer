@@ -62,6 +62,11 @@
             { "type": "string", "const": "unknown" }
           ]
         },
+        "fingerprint": {
+          "type": "string",
+          "description": "Greek-alphabet visual fingerprint, AUTO-DERIVED from id via sha256(NFC(id))[:4 bytes] mod 24. Display-layer only; never load-bearing. Empty string if not yet computed. Schema accepts but tools should regenerate from id rather than trust an authored value.",
+          "pattern": "^[α-ω]{0,4}$"
+        },
         "verifier": {
           "$ref": "#/$defs/check",
           "description": "Optional. Runnable command that should pass when the claim is true. Absence => UNVERIFIABLE in grading."
