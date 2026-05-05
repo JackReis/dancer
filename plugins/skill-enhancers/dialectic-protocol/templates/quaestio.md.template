@@ -1,0 +1,73 @@
+# Quaestio Template — high-stakes structured disputation
+
+Use this template when a claim is contested, normative, or load-bearing enough to earn the scholastic-form overhead. Append entries to `grill-log.md` in append-only fashion. Both peers must independently `ALETHEIA`-stamp the merged statement before it moves to `state.merged.yaml`.
+
+---
+
+[<ISO timestamp>] <author-slug> | QUAESTIO claim:<id>
+**Quaestio.** *Utrum* <thesis stated as a question or proposition>?
+
+(Optional context — why this is being grilled, what makes it load-bearing, what hand-waving the prose did that the disputation form will make precise.)
+
+---
+
+[<ISO>] <peer-slug> | OBIECTIO:1 claim:<id>
+**Videtur quod** <first objection statement>. Source: <file path / command output / prior decision>.
+
+[<ISO>] <peer-slug> | OBIECTIO:2 claim:<id>
+**Praeterea**, <second objection statement>. Source: <…>.
+
+[<ISO>] <peer-slug> | OBIECTIO:3 claim:<id>
+**Item**, <third objection statement>. Source: <…>.
+
+(Aquinas typically lists 3-5 obiectiones. Fewer than 3 means the disputation is too thin to need this form; more than 5 means split it into multiple quaestiones.)
+
+---
+
+[<ISO>] <peer-or-author-slug> | SED-CONTRA claim:<id>
+**Sed contra**, <the single strongest counter to the obiectiones>. Source: <highest-authority source available — typically a canonical doctrine, a commit on main, or a verified observation>.
+
+(Only ONE sed contra. If you can't pick the strongest counter, you don't yet understand the dispute.)
+
+---
+
+[<ISO>] <author-slug> | RESPONDEO claim:<id>
+**Respondeo dicendum quod** <author's adjudicating response>.
+
+The respondeo should:
+- Concede what the obiectiones got right
+- Restore the sed contra
+- Re-frame the question if it was mis-stated
+- Land on a position substantive enough that the next reader can act on it
+
+---
+
+[<ISO>] <author-slug> | RESPONSIONES claim:<id>
+1. **Reply to OBIECTIO:1:** <how the respondeo dissolves objection 1>
+2. **Reply to OBIECTIO:2:** <how the respondeo dissolves objection 2>
+3. **Reply to OBIECTIO:3:** <how the respondeo dissolves objection 3>
+
+---
+
+[<ISO>] <peer-A-slug> | ALETHEIA claim:<id> sha256:<hex of canonical merged statement>
+[<ISO>] <peer-B-slug> | ALETHEIA claim:<id> sha256:<hex of canonical merged statement>
+
+(Both stamps must have matching sha256. If they diverge, the protocol failed loud — somebody edited the merged file between the two reads. Do not proceed; surface to the user.)
+
+---
+
+## Termination conditions
+
+| Outcome | Trigger | What happens |
+|---|---|---|
+| Convergence | Both peers `ALETHEIA`-stamp with matching sha256 | Claim moves to `state.merged.yaml` |
+| Aporia | Round budget exhausted (default: 3 rounds per claim) | `APORIA` line written; claim moves to `unresolved.md` with both positions preserved |
+| New obiectio | A reviewer finds an OBIECTIO not addressed by the responsiones | Author writes a new responsio addressing it; loop back |
+| Integrity-fail | Two `ALETHEIA` stamps with non-matching sha256 | Append `INTEGRITY-FAIL`; do not proceed; surface to user |
+
+## Notes for the author
+
+- The scholastic form forces you to **steelman** the objections. Lazy obiectiones produce lazy respondeos. Spend time on the obiectiones — they're the load-bearing scaffolding.
+- The respondeo should NOT just restate your original claim. If it does, the disputation didn't move you, which means either the obiectiones were too weak or you didn't engage them. Push.
+- If the disputation reveals your original claim was wrong, that's the protocol working. Self-falsification is signal, not failure.
+- Keep responsiones SPECIFIC. *"This is wrong because <new evidence>"* is a real reply. *"I disagree"* is not.

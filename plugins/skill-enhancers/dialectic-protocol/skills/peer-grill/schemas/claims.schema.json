@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jackreis.dev/peer-grill/claims.schema.json",
+  "title": "peer-grill claims dump",
+  "description": "Schema for <agent>.claims.yaml files. Backwards-compatible: pre-existing dumps without verifier/falsifier fields validate but grade as UNVERIFIABLE.",
+  "type": "object",
+  "required": ["agent", "session_started", "scope", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "type": "string",
+      "description": "Unique agent identifier across this peer-grill topic.",
+      "pattern": "^[a-z0-9][a-z0-9-_.]*$"
+    },
+    "session_started": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when this dump began.",
+      "format": "date-time"
+    },
+    "scope": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["infra", "code", "decision", "open-work"] },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/claim" }
+    }
+  },
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "required": ["id", "statement", "confidence", "source", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable slug. Same id across agents = same subject. Different statement = disagreement, not collision.",
+          "pattern": "^[a-z0-9][a-z0-9-_.]*$",
+          "maxLength": 80
+        },
+        "statement": {
+          "type": "string",
+          "description": "One sentence asserting what is true.",
+          "minLength": 10
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "high=checkable source; medium=inferred but source may be stale; low=no source, expected to lose if challenged."
+        },
+        "source": {
+          "type": "string",
+          "description": "How you know — file path+line, command output, signed-off doc, or 'inferred from X'.",
+          "minLength": 5
+        },
+        "scope": { "type": "string", "enum": ["infra", "code", "decision", "open-work"] },
+        "last_verified": {
+          "anyOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "string", "const": "unknown" }
+          ]
+        },
+        "verifier": {
+          "$ref": "#/$defs/check",
+          "description": "Optional. Runnable command that should pass when the claim is true. Absence => UNVERIFIABLE in grading."
+        },
+        "falsifier": {
+          "$ref": "#/$defs/check",
+          "description": "Optional. Runnable command that demonstrates the claim is FALSE if it succeeds. Absence => no falsification protocol; reviewer must produce one ad-hoc."
+        },
+        "disputation": {
+          "$ref": "#/$defs/disputation",
+          "description": "Optional. Scholastic quaestio form for high-stakes contested claims. See docs/conventions/dialectic-vocabulary.md."
+        }
+      }
+    },
+    "disputation": {
+      "type": "object",
+      "description": "Quaestio-form disputation per scholastic tradition (Aquinas Summa Theologiae I-I, q.1-q.119). Use only for claims whose stakes earn the structural overhead.",
+      "required": ["quaestio"],
+      "additionalProperties": false,
+      "properties": {
+        "quaestio": {
+          "type": "string",
+          "description": "The thesis being disputed, stated as a question or proposition. (Greek λόγος — the account that must be defensible.)"
+        },
+        "obiectiones": {
+          "type": "array",
+          "description": "Numbered objections to the quaestio. Each carries a source the asker can verify.",
+          "items": {
+            "type": "object",
+            "required": ["n", "argument"],
+            "additionalProperties": false,
+            "properties": {
+              "n": { "type": "integer", "minimum": 1 },
+              "argument": { "type": "string", "minLength": 10 },
+              "source": { "type": "string", "description": "How the objector knows — file, command, prior decision." },
+              "raised_by": { "type": "string", "description": "Agent slug who raised this obiectio." }
+            }
+          }
+        },
+        "sed_contra": {
+          "type": "object",
+          "description": "The single strongest counter that pulls toward the right answer. Aquinas reserves this for the most authoritative source — quote it.",
+          "required": ["argument"],
+          "additionalProperties": false,
+          "properties": {
+            "argument": { "type": "string", "minLength": 10 },
+            "source": { "type": "string", "description": "The authoritative source. Highest weight a reasonable peer would accept." },
+            "raised_by": { "type": "string" }
+          }
+        },
+        "respondeo": {
+          "type": "string",
+          "description": "The author's adjudicating response. Concedes what the obiectiones got right, restores the sed contra. Should be substantive, not dismissive."
+        },
+        "responsiones": {
+          "type": "array",
+          "description": "Per-objection replies, each addressing a specific obiectio by number.",
+          "items": {
+            "type": "object",
+            "required": ["to", "reply"],
+            "additionalProperties": false,
+            "properties": {
+              "to": { "type": "integer", "minimum": 1, "description": "Number of the obiectio this reply addresses." },
+              "reply": { "type": "string", "minLength": 10 }
+            }
+          }
+        },
+        "aletheia_sha256": {
+          "type": "string",
+          "description": "Hex sha256 of the canonical merged statement after RATIFY. ἀλήθεια (truth-as-unconcealment) attestation. Set only after both peers ratify.",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "required": ["cmd", "expect"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": {
+          "type": "string",
+          "description": "Shell command to execute. Must be deterministic enough to be re-runnable from any reviewer's box. Avoid network calls; prefer filesystem + stable APIs.",
+          "minLength": 3
+        },
+        "expect": {
+          "type": "string",
+          "description": "Comparator: literal exact match | '>N' | '>=N' | '<N' | '<=N' | '==N' | '!=N' | 'matches:/pattern/' | 'contains:substring' | 'sha256:hex' | 'lines:>N|<N|==N'.",
+          "minLength": 1
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60,
+          "default": 10
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional human-readable rationale: why this command, what it proves, what it doesn't prove."
+        }
+      }
+    }
+  }
+}

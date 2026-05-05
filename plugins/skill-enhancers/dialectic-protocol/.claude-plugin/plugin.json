@@ -1,0 +1,48 @@
+{
+  "name": "dialectic-protocol",
+  "version": "1.0.0",
+  "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary, peer-grill file-based reconciliation, runnable verifiers/falsifiers. Synthesis: an unexamined claim does not exist.",
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/tipi",
+  "license": "MIT",
+  "keywords": [
+    "dialectic",
+    "peer-grill",
+    "scholastic",
+    "verification",
+    "consciousness",
+    "tipi",
+    "observer-principle",
+    "skill-enhancer",
+    "multi-agent",
+    "byom"
+  ],
+  "category": "skill-enhancers",
+  "status": "active",
+  "tier": "free",
+  "skills": [
+    {
+      "name": "peer-grill",
+      "source": "./skills/peer-grill/SKILL.md",
+      "description": "File-based multi-agent reconciliation protocol. Two+ agents independently dump claims, grill each other in append-only logs, ratify with sha256 attestation."
+    },
+    {
+      "name": "grill-me",
+      "source": "./skills/grill-me/SKILL.md",
+      "description": "Single-track relentless interview to stress-test a plan or design until shared understanding is reached."
+    },
+    {
+      "name": "grill-me-agents",
+      "source": "./skills/grill-me-agents/SKILL.md",
+      "description": "13-branch interview for multi-agent collaboration designs. Use when subject is multi-agent topology or fleet design."
+    },
+    {
+      "name": "dialectic-vocabulary",
+      "source": "./skills/dialectic-vocabulary/SKILL.md",
+      "description": "Scholastic + Greek vocabulary for grilling: ἔλεγχος, ἀλήθεια, quaestio, sed contra, respondeo. Greek for the soul of inquiry, Latin for the form on the page."
+    }
+  ]
+}

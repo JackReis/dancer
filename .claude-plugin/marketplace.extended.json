@@ -10,9 +10,9 @@
     "version": "1.4.0",
     "homepage": "https://github.com/jeremylongshore/claude-code-plugins",
     "pluginRoot": "./plugins",
-    "totalPlugins": 254,
+    "totalPlugins": 255,
     "skillsEnabled": 185,
-    "lastUpdated": "2025-11-19"
+    "lastUpdated": "2026-05-05"
   },
   "plugins": [
     {
@@ -4827,6 +4827,33 @@
         "skills": 1,
         "commands": 1
       }
+    },
+    {
+      "name": "dialectic-protocol",
+      "source": "./plugins/skill-enhancers/dialectic-protocol",
+      "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary (quaestio · obiectiones · sed contra · respondeo · ALETHEIA) plus peer-grill file-based reconciliation with runnable verifiers and falsifiers. Synthesis: an unexamined claim does not exist.",
+      "version": "1.0.0",
+      "category": "skill-enhancers",
+      "keywords": [
+        "dialectic",
+        "peer-grill",
+        "scholastic",
+        "verification",
+        "consciousness",
+        "tipi",
+        "observer-principle",
+        "skill-enhancer",
+        "multi-agent",
+        "byom",
+        "philosophy",
+        "epistemics"
+      ],
+      "author": {
+        "name": "Jack Reis",
+        "email": "jackareis@gmail.com"
+      },
+      "featured": true,
+      "repository": "https://github.com/JackReis/tipi"
     }
   ]
 }
