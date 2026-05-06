@@ -1,4 +1,9 @@
-# dialectic-protocol
+# grill-each-other
+
+> *Plugin pack name: `grill-each-other` (sibling to Matt Pocock's `grill-me`).
+> Technical substrate: the dialectic protocol — scholastic + Greek vocabulary
+> for structured agent disputation, peer-grill file-based reconciliation, and
+> runnable verifiers/falsifiers. Pack name tells the story; substrate carries the load.*
 
 > ὁ ἀνεξέταστος βίος οὐ βιωτὸς ἀνθρώπῳ.
 > *"The unexamined life is not worth living for a human."*
