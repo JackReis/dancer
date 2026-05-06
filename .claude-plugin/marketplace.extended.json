@@ -4829,8 +4829,8 @@
       }
     },
     {
-      "name": "dialectic-protocol",
-      "source": "./plugins/skill-enhancers/dialectic-protocol",
+      "name": "grill-each-other",
+      "source": "./plugins/skill-enhancers/grill-each-other",
       "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary (quaestio · obiectiones · sed contra · respondeo · ALETHEIA) plus peer-grill file-based reconciliation with runnable verifiers and falsifiers. Synthesis: an unexamined claim does not exist.",
       "version": "1.0.0",
       "category": "skill-enhancers",
