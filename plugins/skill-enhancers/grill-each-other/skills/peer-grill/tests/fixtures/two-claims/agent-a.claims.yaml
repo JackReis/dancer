@@ -1,0 +1,16 @@
+agent: agent-a
+session_started: 2026-05-03T00:00:00Z
+scope: [infra, code]
+claims:
+  - id: db-version
+    statement: postgres 15.4 in production
+    confidence: high
+    source: kubectl get pods -n prod
+    scope: infra
+    last_verified: 2026-05-03T00:00:00Z
+  - id: deploy-script
+    statement: deploys via GitHub Actions
+    confidence: high
+    source: .github/workflows/deploy.yml
+    scope: code
+    last_verified: 2026-05-03T00:00:00Z

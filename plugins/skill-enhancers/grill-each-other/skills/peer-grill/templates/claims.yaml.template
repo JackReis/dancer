@@ -1,0 +1,19 @@
+# Copy this file to .peer-grill/<topic>/<your-agent-name>.claims.yaml
+# Then fill in your independent state dump. DO NOT read the peer's claims file
+# until you have committed your own.
+
+agent: <your-agent-name>          # e.g., claude-laptop, hermes-wings, zoe-mbp, kimi-cloud, pt-neo
+session_started: 2026-05-03T00:00:00Z   # ISO8601 UTC
+scope: [infra, code, decision, open-work]   # narrow as needed
+
+claims:
+  - id: <stable-slug>             # SAME id across peers = SAME subject
+    statement: <one sentence stating what you believe>
+    confidence: high              # high (checkable source) | medium (inferred) | low (guess)
+    source: <file path:line, command output, signed doc — verifiable>
+    scope: infra                  # one of the declared scopes
+    last_verified: 2026-05-03T00:00:00Z   # or "unknown"
+
+  # Add more claims. Stable slugs only. Same id from different agents must
+  # mean the same subject; a different statement under the same id is a
+  # disagreement to be resolved, not a collision.

@@ -1,0 +1,16 @@
+agent: agent-b
+session_started: 2026-05-03T00:00:00Z
+scope: [infra, code]
+claims:
+  - id: db-version
+    statement: postgres 15.6 in production
+    confidence: medium
+    source: heard from devops standup
+    scope: infra
+    last_verified: 2026-05-02T00:00:00Z
+  - id: monitoring
+    statement: datadog enabled on all pods
+    confidence: high
+    source: helm values.yaml
+    scope: infra
+    last_verified: 2026-05-03T00:00:00Z
