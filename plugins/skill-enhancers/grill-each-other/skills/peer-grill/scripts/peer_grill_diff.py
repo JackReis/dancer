@@ -33,7 +33,7 @@ except ImportError:
     sys.exit(2)
 
 VALID_CONFIDENCE = {"high", "medium", "low"}
-VALID_SCOPES = {"infra", "code", "decision", "open-work"}
+VALID_SCOPES = {"infra", "code", "decision", "open-work", "doc-state"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]*$")
 REQUIRED_TOP = {"agent", "session_started", "scope", "claims"}
 REQUIRED_CLAIM = {"id", "statement", "confidence", "source", "scope"}

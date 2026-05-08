@@ -2,7 +2,7 @@
 name: peer-grill
 description: Two (or more) agents — Claude sessions, other LLMs, or mixed — interrogate each other through a structured file-based protocol to converge on shared project state. Each agent independently dumps its model, the disagreements get grilled until convergence or surfaced as unresolved, and both sign off on a merged ground truth. Use when the user says "peer-grill", "have the agents grill each other", "reconcile state across sessions", "settle a dispute between sessions", "force two agents to converge on X", "two agents agree on X", or when parallel sessions have diverged.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
-version: 2.0.0
+version: 2.1.0
 ---
 
 This is a **symmetric, file-based** reconciliation protocol. There is no master and no relay. Each agent reads and writes only specific files in a shared directory. The protocol works whether the peer is another Claude session, a non-Claude LLM, or a human pretending to be one — as long as everyone follows the file conventions.
@@ -43,7 +43,7 @@ If a script invocation reveals a hard rule was broken, append a `INTEGRITY-FAIL`
 1. **Topic** — what state are we reconciling? Get a slug.
 2. **Identity** — what name is *this* agent? (e.g., `claude-laptop`, `claude-pr-bot`, `cursor-mac`). Must be unique across peers.
 3. **Peer** — what's the peer's identity, and how is it accessed (separate Claude session, another model, user-relayed)? If the peer is non-Claude, the user is responsible for getting that peer to follow the same protocol — offer to share `templates/system-prompt-for-non-claude-peer.md` (relative to this skill dir).
-4. **Scope** — what categories of claims belong to this reconciliation? (`infra`, `code`, `decision`, `open-work`.) Anything outside these categories is filtered out before diffing.
+4. **Scope** — what categories of claims belong to this reconciliation? (`infra`, `code`, `decision`, `open-work`, `doc-state`.) Anything outside these categories is filtered out before diffing.
 5. **Round budget** — max grilling rounds per disputed claim before escalating to unresolved (default: 3).
 
 ## Protocol
@@ -55,7 +55,7 @@ Write `<agent>.claims.yaml`. **Do not read the peer's file yet.** Each claim min
 ```yaml
 agent: <agent-name>
 session_started: <ISO8601>
-scope: [infra, code, decision, open-work]
+scope: [infra, code, decision, open-work, doc-state]
 claims:
   - id: <stable-slug>            # same id across agents = same subject
     statement: <one sentence>

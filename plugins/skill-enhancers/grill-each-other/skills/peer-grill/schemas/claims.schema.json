@@ -19,7 +19,7 @@
     },
     "scope": {
       "type": "array",
-      "items": { "type": "string", "enum": ["infra", "code", "decision", "open-work"] },
+      "items": { "type": "string", "enum": ["infra", "code", "decision", "open-work", "doc-state"] },
       "uniqueItems": true,
       "minItems": 1
     },
@@ -55,7 +55,7 @@
           "description": "How you know — file path+line, command output, signed-off doc, or 'inferred from X'.",
           "minLength": 5
         },
-        "scope": { "type": "string", "enum": ["infra", "code", "decision", "open-work"] },
+        "scope": { "type": "string", "enum": ["infra", "code", "decision", "open-work", "doc-state"] },
         "last_verified": {
           "anyOf": [
             { "type": "string", "format": "date-time" },

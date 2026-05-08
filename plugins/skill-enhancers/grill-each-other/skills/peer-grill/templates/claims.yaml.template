@@ -4,7 +4,7 @@
 
 agent: <your-agent-name>          # e.g., claude-laptop, hermes-wings, zoe-mbp, kimi-cloud, pt-neo
 session_started: 2026-05-03T00:00:00Z   # ISO8601 UTC
-scope: [infra, code, decision, open-work]   # narrow as needed
+scope: [infra, code, decision, open-work, doc-state]   # narrow as needed
 
 claims:
   - id: <stable-slug>             # SAME id across peers = SAME subject
