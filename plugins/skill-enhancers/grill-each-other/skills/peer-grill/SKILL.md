@@ -1,9 +1,9 @@
 ---
 name: peer-grill
-description: Two (or more) agents — Claude sessions, other LLMs, or mixed — interrogate each other through a structured file-based protocol to converge on shared project state. Each agent independently dumps its model, the disagreements get grilled until convergence or surfaced as unresolved, and both sign off on a merged ground truth. Use when the user says "peer-grill", "have the agents grill each other", "reconcile state across sessions", "settle a dispute between sessions", "force two agents to converge on X", "two agents agree on X", or when parallel sessions have diverged.
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
-version: 2.1.0
+description: Two (or more) agents — Claude sessions, other LLMs, or mixed — interrogate each other through a structured file-based protocol to converge on shared project state. Each agent independently dumps its model, the disagreements get grilled until convergence or surfaced as unresolved, and both sign off on a merged ground truth. Use when parallel sessions have diverged, when reconciling state across machines, or when the user mentions "have the agents grill each other", "peer-grill", "reconcile state", or "two agents agree on X".
 ---
+
+**Try `agent-show-and-tell` first.** Most fleet-coordination needs are visibility, not consensus — show-and-tell is fire-and-forget, has no failure modes, and surfaces conflicts without trying to resolve them. Reach for `peer-grill` only when show-and-tell has already shown that two agents *meaningfully disagree* about a fact you actually need to settle.
 
 This is a **symmetric, file-based** reconciliation protocol. There is no master and no relay. Each agent reads and writes only specific files in a shared directory. The protocol works whether the peer is another Claude session, a non-Claude LLM, or a human pretending to be one — as long as everyone follows the file conventions.
 
@@ -18,44 +18,46 @@ All artifacts live in `.peer-grill/<topic>/` relative to repo root, where `<topi
 | `<agent>.claims.yaml` | only that agent | everyone | self-reported model of the state |
 | `diff.md` | last writer to compute it (append-only) | everyone | three-bucket diff: agreed / disagreed / only-one |
 | `grill-log.md` | append-only, both | everyone | full Q&A transcript with timestamps and agent identity |
-| `state.merged.yaml` | only after both agents append a consensus marker to `grill-log.md` | everyone | the converged ground truth |
+| `state.merged.yaml` | the **merge writer** (first alphabetically among peers) — once all claims identified in Phase 3 are ratified or escalated. Others read only. | everyone | the converged ground truth |
 | `unresolved.md` | append-only, both | everyone | disputes that didn't converge; both positions recorded |
 | `signoff.md` | append-only, both | everyone | identity + timestamp + sha256 of `state.merged.yaml` each agent attests to |
-| `graded.md` | append-only, by `peer_grill_grade.py` | everyone | optional: PASS/FAIL/UNVERIFIABLE table from running `verifier`/`falsifier` blocks on claims |
 
-## Conventions and what's actually enforced
+**Hard rules:**
+- An agent **never** edits another agent's `claims.yaml`.
+- `state.merged.yaml` is written only by the **merge writer** — the peer whose name sorts first alphabetically — once all non-agreed claims are either ratified or escalated. The merge writer **overwrites** the file (it's a single-writer batch artifact; appending would produce malformed YAML).
+- Append-only files (`grill-log.md`, `signoff.md`, `unresolved.md`) are append-only — never rewrite history.
 
-Most rules below are **honor-system conventions** between cooperating agents. Where a script enforces a rule, this is called out.
+## Terminal events
 
-| Rule | Enforced by |
-|---|---|
-| An agent never edits another agent's `claims.yaml` | convention only — filesystem permits it |
-| `state.merged.yaml` updated only when both agents wrote `RATIFY:` | partial — `peer_grill_check_convergence.py` verifies, but nothing blocks writing the merged file |
-| Append-only files never rewritten | convention only — no immutability flag |
-| `only-one-knows` items must be grilled at least once | convention only |
-| RATIFY requires both agents | yes — `peer_grill_check_convergence.py` |
-| Claims dump conforms to schema | partial — `peer_grill_diff.py` runs stdlib structural checks (required fields, enums, id pattern) and emits warnings; full schema validation requires PyYAML + a json-schema validator (out of scope for v1) |
+The protocol has five terminal-event types. They share a log-line shape `[<ISO>] <self> | <EVENT>: <detail>` written to `grill-log.md`. Phase bodies below cite events by name; this table is the canonical definition.
 
-If a script invocation reveals a hard rule was broken, append a `INTEGRITY-FAIL` line to `grill-log.md` and stop — do not proceed with merge or signoff.
+| Event | Trigger | Phase | Action |
+|---|---|---|---|
+| `TIMEOUT: phase=<n>` | Poll/wait exhausts `poll_timeout_minutes` | 2, 5 | append; surface to user; stop |
+| `PARSE-FAIL: <peer-file>` | Peer's `claims.yaml` fails to parse as YAML on two reads 5 seconds apart | 2 | append; surface to user; stop |
+| `IDENTITY-COLLISION` | Peer's `agent` field equals `<self>` | 2 | append; surface to user; stop |
+| `ESCALATE: <claim-id>` | Round budget exhausted on a disputed claim | 4 | append; also write both positions to `unresolved.md`; **continue protocol** (only this event doesn't stop) |
+| `INTEGRITY-FAIL: <reason>` | Sign-off cannot converge — `reason=iter-loop` (third sha256 mismatch in a row) or `reason=stalled` (5-minute no-activity stall) | 6 | append; surface to user; stop |
 
 ## Setup — ask the user before any writes
 
 1. **Topic** — what state are we reconciling? Get a slug.
 2. **Identity** — what name is *this* agent? (e.g., `claude-laptop`, `claude-pr-bot`, `cursor-mac`). Must be unique across peers.
-3. **Peer** — what's the peer's identity, and how is it accessed (separate Claude session, another model, user-relayed)? If the peer is non-Claude, the user is responsible for getting that peer to follow the same protocol — offer to share `templates/system-prompt-for-non-claude-peer.md` (relative to this skill dir).
-4. **Scope** — what categories of claims belong to this reconciliation? (`infra`, `code`, `decision`, `open-work`, `doc-state`.) Anything outside these categories is filtered out before diffing.
-5. **Round budget** — max grilling rounds per disputed claim before escalating to unresolved (default: 3).
+3. **Peer** — what's the peer's identity, and how is it accessed (separate Claude session, another model, user-relayed)? If the peer is non-Claude, the user is responsible for getting that peer to follow the same protocol — offer to write a one-page system-prompt summary the user can paste into the peer.
+4. **Scope** — what categories of claims belong to this reconciliation? (`infra`, `code`, `decision`, `open-work`, etc.) Anything outside these categories is filtered out before diffing.
+5. **Round budget** — max grilling rounds per disputed claim before `ESCALATE` (default: 3).
+6. **`poll_timeout_minutes`** — wall-clock budget for polls in Phase 2 and Phase 5 (default: 30). Single configurable parameter applied uniformly; not two independent budgets.
 
 ## Protocol
 
 ### 1. Independent dump
 
-Write `<agent>.claims.yaml`. **Do not read the peer's file yet.** Each claim minimum-required shape:
+Write `<agent>.claims.yaml`. **Do not read the peer's file yet.** Each claim is:
 
 ```yaml
 agent: <agent-name>
 session_started: <ISO8601>
-scope: [infra, code, decision, open-work, doc-state]
+scope: [infra, code, decision, open-work]
 claims:
   - id: <stable-slug>            # same id across agents = same subject
     statement: <one sentence>
@@ -65,8 +67,6 @@ claims:
     last_verified: <ISO8601 or "unknown">
 ```
 
-The full schema (`schemas/claims.schema.json`) accepts richer fields — see "Optional schema fields" below.
-
 Confidence rules:
 - `high` requires a *checkable source* (file path + line, command output, signed-off doc).
 - `medium` is "I inferred this from X but X may be stale."
@@ -74,19 +74,23 @@ Confidence rules:
 
 Stable slugs matter: `db-version`, not `db-version-as-of-may-1`. Same id from different agents = same subject; a different statement = a disagreement, not a collision.
 
-### 2. Symmetric reveal
+### 2. Read & validate peer's claims
 
-When both agents' `claims.yaml` files exist, each agent reads the peer's. Polling: re-check every minute up to a 30-minute default timeout. On timeout, append a `TIMEOUT` line to `grill-log.md` and stop — do not proceed with one-sided merge.
+Three sequential checks: poll → parse → identity. Each check has one terminal event.
+
+1. **Poll** for `<peer>.claims.yaml` every 60 seconds, up to `poll_timeout_minutes`. On timeout, emit `TIMEOUT: phase=2`.
+2. **Parse** the file as YAML. On failure, wait 5 seconds and retry once (handles transient filesystem races where the peer is mid-write). If the second read also fails, emit `PARSE-FAIL: <peer-file>`.
+3. **Identity-check.** If the peer's `agent` field equals `<self>`, emit `IDENTITY-COLLISION`. Catching this here — before grilling or merging — prevents both peers from later self-identifying as the alphabetically-first merge writer.
 
 ### 3. Diff
 
 Compute three buckets:
 
-- **agreed**: same id, same statement (modulo whitespace), compatible scopes. Merge directly.
+- **agreed**: same id, same statement (modulo whitespace), compatible scopes. Merge directly into `state.merged.yaml` with `sources` = the union of both peers' source values for that id (deduplicate identical strings; preserve both peers' citations side-by-side otherwise). Agreed claims do not enter the grill loop and do not require `RATIFY:` lines.
 - **disagreed**: same id, different statements.
 - **only-one-knows**: id present in one agent's file, absent from the other's.
 
-`peer_grill_diff.py` does this and appends to `diff.md`. The script also emits structural-schema warnings (required-field, enum, id-pattern checks) but does NOT block on them — the diff still computes.
+Append the diff to `diff.md` as a single block, prefixed with timestamp and which agent wrote it. If the peer also wrote a diff, compare them — *diffs-of-diffs catch silent-drop bugs*. Any divergence between the two computed diffs is itself a disagreement to resolve before grilling claims.
 
 ### 4. Grill loop
 
@@ -103,16 +107,18 @@ Rules:
 - For `disagreed` claims, the agent with the *lower* confidence asks first. Ties broken alphabetically by agent name.
 - For `only-one-knows`, the agent who *doesn't* know asks.
 - An answer that doesn't cite a verifiable source is grounds for another round.
-- After the round budget is exhausted without convergence, write `ESCALATE: <claim-id>` and append both positions to `unresolved.md`.
-- On convergence, both agents must independently write a RATIFY line to `grill-log.md`. Two header attribution formats are supported by `peer_grill_check_convergence.py`:
-  - **Standalone:** an agent-name header line (`[<ISO>] <agent>`) followed by `RATIFY: <claim-id> | <agreed-statement>` on a subsequent line. The agent named in the header is credited.
-  - **Inline:** an arrow-form header line (`[<ISO>] <asker> -> <answerer> | claim:<id> | RATIFY: <claim-id> | <agreed-statement>`). The *asker* (left of `->`) is credited.
-  The convergence script matches the substring `RATIFY: <claim-id>` to count attribution. The trailing `| <agreed-statement>` is human-readable but not parsed; copy it both times for the audit log.
-  Only when both agents have ratified does the claim move to `state.merged.yaml`.
+- After the round budget is exhausted without convergence, emit `ESCALATE: <claim-id>` per Terminal events. The rest of the protocol continues; only this claim is finalized as unresolved.
+- On convergence, both agents must independently write `RATIFY: <claim-id> | <agreed-statement>` lines to `grill-log.md`. Both `<agreed-statement>` values must match exactly modulo leading/trailing whitespace. If they diverge, the claim is *not* ratified — return to the grill loop for that claim. The ratification attempt itself does *not* count as a round; the counter resumes from where it left off after the last actual Q&A round. If the budget was already exhausted when ratification was attempted, no further Q&A is possible and the claim immediately emits `ESCALATE: <claim-id>` per Terminal events.
 
 ### 5. Merge
 
-Write `state.merged.yaml` with all ratified claims. This step is manual today — no helper script. Format mirrors the dump format minus per-agent fields:
+The merge writer waits, up to `poll_timeout_minutes`, for every claim in the `disagreed` and `only-one-knows` buckets to be either ratified (matching `RATIFY:` lines from both peers) or escalated. Agreed-bucket claims skip the grill loop and don't need either; they're merged directly. On timeout, emit `TIMEOUT: phase=5`.
+
+When all non-agreed claims are processed, the merge writer writes `state.merged.yaml` with all agreed claims plus all ratified claims. (Per Hard rules: only the merge writer writes; the file is overwritten, never appended.)
+
+The non-writer peer polls for the file's appearance with the same `poll_timeout_minutes` and proceeds to Phase 6 once it's present. On timeout, emit `TIMEOUT: phase=5`.
+
+Format mirrors the dump format minus per-agent fields:
 
 ```yaml
 topic: <topic>
@@ -127,7 +133,7 @@ claims:
 
 ### 6. Sign-off
 
-Each agent computes `sha256(state.merged.yaml)` (via `peer_grill_signoff.py`) and the script appends to `signoff.md`:
+Compute `sha256` of `state.merged.yaml` after **LF-normalizing** the file content (strip any `\r` — cross-platform line endings are otherwise the most likely cause of stable-but-divergent hashes). Append to `signoff.md`:
 
 ```
 agent: <name>
@@ -136,19 +142,39 @@ merged_state_sha256: <hex>
 attestation: "I attest the above merged state as the agreed truth as of this timestamp."
 ```
 
-The signoff script does NOT compare hashes — that's the agent's job. After both agents have signed off, read both lines; if the two `merged_state_sha256` values **don't match**, the protocol failed: somebody edited the merged file between the two reads. Append `INTEGRITY-FAIL` to `grill-log.md`, do not proceed, surface to the user.
+**Mismatch handling.** Iteration is normal — sha256 mismatches do *not* immediately escalate. Any agent that observes a mismatch with the peer's signoff re-reads `state.merged.yaml` (LF-normalized), recomputes their own sha256, and either confirms it still matches their last signoff (no further action) or appends a *superseding* signoff entry referencing their own prior signoff's timestamp:
+
+```
+agent: <name>
+timestamp: <new ISO8601>
+merged_state_sha256: <new hex>
+supersedes: <prior timestamp from this agent>
+attestation: "I attest the above merged state as the agreed truth as of this timestamp."
+```
+
+This is symmetric — the merge writer can have a stale hash too. Don't defer to a "later signer."
+
+Emit `INTEGRITY-FAIL: <reason>` (per Terminal events) in exactly two cases:
+- `iter-loop`: third sha256 mismatch in a row, i.e. two of *your own* supersedes without convergence. Indicates the merge writer is editing in a loop the other peer can't keep up with.
+- `stalled`: mismatch persists 5 minutes with no new entry in `signoff.md` or `grill-log.md` and your hash is stable.
 
 ### 7. Report
 
 To the user, summarize: converged claim count, unresolved count (with link to `unresolved.md`), peers, sha256 of final state, total rounds spent. Offer to commit `.peer-grill/<topic>/` to git so the reconciliation is auditable.
 
-## Optional schema fields
+## Use case: teaching the skills framework via reconciliation
 
-The full `schemas/claims.schema.json` accepts three optional per-claim blocks beyond the minimum shape:
+Peer-grill doubles as a teaching mechanism when one peer knows something the other doesn't. The asymmetry surfaces during step 3 as `only-one-knows` items, and step 4 forces the less-informed peer to grill the more-informed one until the claim is verified and ratified.
 
-- **`fingerprint`** — a 4-letter Greek-alphabet visual handle, deterministically derived from `sha256(NFC(id))`. Display-layer only; tools regenerate it from the id rather than trusting an authored value. Compute via `peer_grill_fingerprint.py <claim-id>` (or `--bracketed` for `⟦…⟧` form, or `--batch <claims.yaml>`).
-- **`verifier`** / **`falsifier`** — runnable shell commands with `expect:` comparators (literal, numeric, regex, contains, sha256, lines:N). `peer_grill_grade.py <topic-dir>` reads every `*.claims.yaml`, runs these checks, and appends a PASS/FAIL/UNVERIFIABLE/ERROR/FALSIFIED grading table to `graded.md`. Optional but valuable: a `verifier` that another reader can re-run is the strongest source a `high` confidence claim can carry.
-- **`disputation`** — full scholastic *quaestio* form (`obiectiones`, `sed_contra`, `respondeo`, `responsiones`, `aletheia_sha256`) for high-stakes contested claims. See the `dialectic-vocabulary` skill in this plugin for the meaning of the Greek/Latin terms. Use sparingly; the structural overhead earns its keep only on claims where the dispute itself needs to be auditable.
+**Concrete recipe — teaching the Claude skills framework to a non-Claude agent:**
+
+1. Set `topic = skills-framework`.
+2. The Claude peer's `claims.yaml` enumerates what exists: each skill's id, location, purpose, and the rules of the framework itself (frontmatter format, trigger phrases, working-directory conventions).
+3. The non-Claude peer's `claims.yaml` is mostly empty (or contains its current — possibly wrong — model of how skills work).
+4. Steps 3–4 run normally. Every skill becomes an `only-one-knows` item; the non-Claude peer grills the Claude peer on each one until the source citations are convincing.
+5. The merged `state.merged.yaml` becomes a verified, peer-attested description of the framework that the non-Claude agent now genuinely understands — not just was told.
+
+This works for any framework, doc set, or shared mental model — not just skills. Pick `topic` to match what's being taught.
 
 ## Multi-peer (3+) extension
 
@@ -161,34 +187,3 @@ Run pairwise reconciliations in a chain (A↔B, then merged↔C). Each pairwise 
 - **Don't** trust your own confidence levels uncritically — when a peer challenges a `high` claim, re-verify the source rather than restating the assertion.
 - **Don't** invent claims to fill gaps. If a scope has no claims, the merged state has no claims in that scope, and that's correct.
 - If running this skill *and* the peer is also Claude, suggest the user run each peer in a separate session/terminal so they don't share context — context-sharing defeats the point of independent dumps.
-
-## Helper scripts
-
-All scripts live in `${SKILL_DIR}/scripts/`. `${SKILL_DIR}` resolves to wherever this skill is installed: `~/.claude/skills/peer-grill/scripts/` for a user install, or `<plugin-root>/skills/peer-grill/scripts/` when bundled in a plugin.
-
-| Script | Purpose | Stdlib? |
-|---|---|---|
-| `peer_grill_init.sh <topic> <agent-name>` | Create `.peer-grill/<topic>/` and stamp the agent identity in a `<agent>.claims.yaml` skeleton | bash only |
-| `peer_grill_diff.py <topic-dir>` | Compute three-bucket diff from both `<agent>.claims.yaml` files; emit schema warnings; append diff to `diff.md` | needs PyYAML |
-| `peer_grill_check_convergence.py <topic-dir> <claim-id>` | Returns 0 if both agents have written `RATIFY: <claim-id>` to `grill-log.md`, else 1 | stdlib |
-| `peer_grill_signoff.py <topic-dir> <agent-name>` | Compute sha256 of `state.merged.yaml`, append signoff line | stdlib |
-| `peer_grill_grade.py <topic-dir>` | Run every claim's `verifier`/`falsifier` block; append PASS/FAIL table to `graded.md` | needs PyYAML |
-| `peer_grill_fingerprint.py <id-or-claims-yaml>` | Derive Greek-alphabet fingerprint from a claim id (single or batch) | stdlib (`--batch` needs PyYAML) |
-
-PyYAML is the only third-party dependency. Install with `pip install pyyaml` or run from a Python that has it. Scripts emit a clear error and `sys.exit(2)` when PyYAML is missing — they do not silently fall through.
-
-## Relationship to fleet messaging bridges
-
-This skill is **strict file-only**. It does NOT use any session-to-session messaging transport (`hermes-bridge`, `openclaw-bridge`, Discord/Telegram relays, etc.). If you need to wake the peer to start their side of the protocol, do that as a SEPARATE step before invoking peer-grill — the protocol then proceeds via the shared filesystem only. Mixing transports inside the protocol would defeat the BYOM/heterogeneous-fleet goal and re-introduce synchronization bugs the file convention exists to prevent.
-
-## Templates
-
-- `${SKILL_DIR}/templates/claims.yaml.template` — copy-and-fill for the dump phase.
-- `${SKILL_DIR}/templates/system-prompt-for-non-claude-peer.md` — paste into a non-Claude peer to teach it the protocol.
-
-## Tests and reference fixtures
-
-- `${SKILL_DIR}/tests/fixtures/two-claims/` — minimal pair of `agent-{a,b}.claims.yaml` files exercising the agreed/disagreed/only-one-knows code paths. Used by `tests/test_diff.py`.
-- `${SKILL_DIR}/tests/test_e2e_simulation.py` — full 7-step protocol simulation: init → dump → diff → grill → ratify → merge → signoff. Pre-stages the peer's files in a tempdir and runs the agent-a side through the actual scripts. Verifies both signoff hashes match.
-
-Run all tests: `cd ${SKILL_DIR}/tests && for f in test_*.py; do python3 "$f"; done; bash test_init.sh`. Tests that need PyYAML auto-detect a Python with it; if none is found they print `SKIP` rather than fail.
