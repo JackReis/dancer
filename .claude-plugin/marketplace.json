@@ -1,14 +1,14 @@
 {
-  "name": "claude-code-plugins-plus",
+  "name": "dancer",
   "owner": {
-    "name": "Jeremy Longshore",
+    "name": "Jack Reis",
     "email": "[email protected]",
-    "url": "https://github.com/jeremylongshore"
+    "url": "https://github.com/JackReis"
   },
   "metadata": {
-    "description": "A comprehensive marketplace and educational hub for Claude Code plugins",
+    "description": "Jack Reis's Claude Code plugin and skill marketplace",
     "version": "1.4.0",
-    "homepage": "https://github.com/jeremylongshore/claude-code-plugins",
+    "homepage": "https://github.com/JackReis/dancer",
     "pluginRoot": "./plugins",
     "totalPlugins": 255,
     "skillsEnabled": 185,
