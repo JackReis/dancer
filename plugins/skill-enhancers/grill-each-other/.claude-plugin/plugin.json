@@ -1,7 +1,7 @@
 {
   "name": "grill-each-other",
-  "version": "1.0.0",
-  "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary, peer-grill file-based reconciliation, runnable verifiers/falsifiers. Synthesis: an unexamined claim does not exist.",
+  "version": "1.1.0",
+  "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary, peer-grill file-based reconciliation, runnable verifiers/falsifiers, multi-agent ratification of agent topologies (peer-grill-with-agents). Synthesis: an unexamined claim does not exist.",
   "author": {
     "name": "Jack Reis",
     "email": "jackareis@gmail.com"

@@ -36,8 +36,9 @@ The producer-side discipline (verifier, source, confidence rating, ALETHEIA stam
 |---|---|
 | `agent-show-and-tell` | Fire-and-forget visibility across a multi-agent fleet — try this first when you just want to know what each agent sees |
 | `peer-grill` | Two+ agents need to converge on shared state via file-based reconciliation (escalate from show-and-tell when meaningful disagreement is real) |
+| `peer-grill-with-agents` | Two+ agents independently audit the SAME existing agent stack against the codebase, then reconcile — composes `grill-me-with-agents` × `peer-grill` for multi-agent ratification of an `AGENT_DESIGN.md` |
 | `grill-me` | Single track — interview the user relentlessly about a plan or design |
-| `grill-me-agents` | Multi-agent topology design — 13-branch lens |
+| `grill-me-agents` | Multi-agent topology design — 13-branch lens (greenfield) |
 | `dialectic-vocabulary` | Reference for Greek + Latin terms; how to mark grill-log entries |
 
 Plus:

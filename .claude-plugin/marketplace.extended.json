@@ -4831,8 +4831,8 @@
     {
       "name": "grill-each-other",
       "source": "./plugins/skill-enhancers/grill-each-other",
-      "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary (quaestio · obiectiones · sed contra · respondeo · ALETHEIA) plus peer-grill file-based reconciliation with runnable verifiers and falsifiers. Synthesis: an unexamined claim does not exist.",
-      "version": "1.0.0",
+      "description": "Producer-side claim discipline for AI agents: scholastic + Greek dialectic vocabulary (quaestio · obiectiones · sed contra · respondeo · ALETHEIA) plus peer-grill file-based reconciliation with runnable verifiers and falsifiers. v1.1 adds peer-grill-with-agents for multi-agent ratification of an existing AGENT_DESIGN.md. Synthesis: an unexamined claim does not exist.",
+      "version": "1.1.0",
       "category": "skill-enhancers",
       "keywords": [
         "dialectic",
