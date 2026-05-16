@@ -1,0 +1,13 @@
+# .fleet-ratify/<topic>/manifest.yaml — written by the initiator at init.
+# `artifact.md` is a frozen verbatim snapshot; this hash covers its bytes.
+topic: <kebab-slug>
+initiator: <canonical-agent-slug>
+artifact_sha256: <output of: shasum -a 256 artifact.md>
+artifact_origin: <vault-path@git-sha the snapshot was taken from, or "inline">
+supersedes: <prior topic slug — only if this re-opens a rewritten artifact; else omit>
+roster:
+  - <canonical-agent-slug>
+  - <canonical-agent-slug>
+expires_at: <ISO8601>          # default: initiation + 72h
+mode: standard                 # standard | fast
+status: open                   # open|pending-human|ratified|rejected — only the merge writer transitions this (see SKILL.md)

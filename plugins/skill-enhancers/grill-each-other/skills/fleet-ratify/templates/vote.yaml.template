@@ -1,0 +1,17 @@
+# .fleet-ratify/<topic>/<agent>.vote.yaml — written ONLY by that agent.
+# Filename slug and the `agent:` field must match the canonical roster slug.
+# ABSTAIN is never cast here — it is tally-assigned (ABSTAIN_BY_TIMEOUT) to
+# any rostered agent with no vote file at expires_at.
+agent: <canonical-agent-slug>
+artifact_sha256: <hash this agent computed from artifact.md and is attesting>
+decision: SIGN                 # SIGN | DISSENT
+timestamp: <ISO8601 UTC>
+
+# `dissent:` present ONLY when decision is DISSENT. Atom-refs are proposed by
+# the dissenting agent — the merge writer aggregates them, never invents them.
+dissent:
+  - atom:
+      section: "<section number or heading>"
+      anchor: "<short quoted span that locates the objection>"
+    objection: <what is wrong, concretely>
+    proposed_resolution: carve-caveat   # verifier | ticket | rewrite | carve-caveat

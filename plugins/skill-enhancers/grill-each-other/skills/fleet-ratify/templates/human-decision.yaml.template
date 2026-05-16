@@ -1,0 +1,12 @@
+# .fleet-ratify/<topic>/human-decision.yaml
+# Written as a blank stub by the merge writer on DECOMPOSED; filled by the
+# human. The merge writer detects the filled `decision:` and resumes.
+topic: <kebab-slug>
+decision:                      # accept-split | decompose-further | rewrite-with-caveats | reject
+decided_at: <ISO8601>          # fill when you answer
+
+# Optional per-atom notes — e.g. "atom A11: decompose further", or
+# "atom A12: carve as caveat, verifier = make test-sync".
+notes:
+  - atom: "<atom id>"
+    note: <instruction>

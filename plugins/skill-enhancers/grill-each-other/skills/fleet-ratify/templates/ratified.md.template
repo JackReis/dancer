@@ -1,0 +1,40 @@
+# <topic> — RATIFIED
+
+**Artifact:** `<artifact_origin>`
+**artifact_sha256:** `<the one hash every signer attested>`
+**Ratified:** <ISO8601>   **Mode:** standard
+**Grain-gate:** <all-SIGN, no decomposition | human-decision: accept-split | human-decision: rewrite-with-caveats>
+**Supersedes:** <prior topic slug, or "none">
+
+## Ratified atom-refs
+
+Spans of the immutable artifact that every signer signed. References, not
+extracted text — the artifact itself is unchanged.
+
+- A1 — §<n> "<anchor>"
+- A2 — §<n> "<anchor>"
+
+## Signatures
+
+Each signer attests the single `artifact_sha256` above.
+
+| Agent | Timestamp | artifact_sha256 |
+|---|---|---|
+| <agent> | <ISO8601> | <hash> |
+| <agent> | <ISO8601> | <hash> |
+
+## Caveats
+
+Carved atom-refs that did not reach unanimity. Every caveat MUST carry a
+runnable `verifier:` or a tracked `ticket:` — a caveat with neither blocks
+finalization.
+
+- **C1** — §<n> "<anchor>"
+  - objection: <text>
+  - raised_by: <agent>
+  - verifier: `<runnable command>`        # OR —
+  - ticket: <tracked issue id>
+
+## Abstentions
+
+- <agent> — ABSTAIN_BY_TIMEOUT (no vote by expires_at)
