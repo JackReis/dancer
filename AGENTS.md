@@ -1,15 +1,24 @@
 # Agent Skills System
 
-**Last Updated:** November 15, 2025
-**Current Status:** 185 Agent Skills (100% 2025 schema compliant)
+**Last Updated:** May 16, 2026
+**Current Status:** 4 Jack-authored plugin packs, 21 skills total
 
 ## Overview
 
-This repository uses **Agent Skills** - model-invoked capabilities that activate automatically based on conversation context and trigger phrases. Unlike commands (which users invoke explicitly), skills are intelligent assistants that Claude Code activates when needed.
+This repository contains **Jack Reis's own plugin packs** for Claude Code. Originally forked from the Jeremy Longshore marketplace (MIT-licensed), the inherited upstream plugins were removed on 2026-05-16. Dancer now ships only Jack-authored contributions.
+
+## Plugin Packs
+
+| Pack | Category | Skills | Description |
+|---|---|---|---|
+| `autonomous-ai-agents` v0.4.0 | ai-agency | 3 + 2 MCP bridges | Fleet coordination: identity, hermes-bridge, openclaw-bridge |
+| `grill-each-other` v1.2.0 | skill-enhancers | 9 | Dialectic claim discipline: grill-me, peer-grill, fleet-ratify, etc. |
+| `leonardo` v1.1.0 | ai-agency | 1 | Protected-string decoder with Discord audit |
+| `pocock-engineering` v1.0.0 | skill-enhancers | 8 | SDLC skills forked from Matt Pocock's framework |
 
 ## 2025 Schema Compliance
 
-All Dancer-packaged skills have been migrated to the Dancer 2025 package schema. In the broader Agentic OS, treat this as a package/distribution schema, not the universal skill source schema. The portable minimum across Superpowers, user skills, vault skills, and package-installed skills is `name` plus `description`; `allowed-tools`, `version`, plugin manifests, commands, hooks, and MCP entries are adapter/package fields unless a target runtime explicitly requires them. See `/Users/jack.reis/Documents/=notes/docs/architecture/plugin-capability-schema-policy.md`.
+All Dancer-packaged skills follow the 2025 schema. The portable minimum across Superpowers, user skills, vault skills, and package-installed skills is `name` plus `description`; `allowed-tools`, `version`, plugin manifests, commands, hooks, and MCP entries are adapter/package fields unless a target runtime explicitly requires them.
 
 ### Dancer Package Fields
 
@@ -25,54 +34,21 @@ version: 1.0.0                      # Dancer package/runtime field
 ---
 ```
 
-### Tool Categories
-
-Skills are restricted to specific tool sets for security and performance:
-
-- **Read-only analysis**: \`Read, Grep, Glob, Bash\`
-- **Code editing**: \`Read, Write, Edit, Grep, Glob, Bash\`
-- **Web research**: \`Read, WebFetch, WebSearch, Grep\`
-- **Database operations**: \`Read, Write, Bash, Grep\`
-- **Testing**: \`Read, Bash, Grep, Glob\`
-
 ## Current Metrics
 
-- **Total Plugins**: 253
-- **Plugins with Agent Skills**: 185 (73%)
-- **2025 Schema Compliance**: 100%
-- **Average SKILL.md Size**: 3,210 bytes (17x Anthropic examples)
-- **Total Skills**: 185 unique skills
-
-## Skills Generation System
-
-### Automated Pipeline
-
-1. **Database Tracking** (\`backups/skills_generation.db\`)
-   - SQLite database tracking all 253 plugins
-   - Status: pending → processing → completed → failed
-   - Metadata: skill size, generation timestamp, error logs
-
-2. **Daily Automation** (\`.github/workflows/daily-skill-generator.yml\`)
-   - Runs via GitHub Actions
-   - Uses Vertex AI Gemini 2.0 Flash API
-   - Automatic backups before generation
-   - Safety checks and validation
-
-3. **Manual Generation** (\`./scripts/next-skill.sh\`)
-   - Interactive script for on-demand generation
-   - Reads plugin README and manifest
-   - Prompts Vertex AI with plugin context
-   - Validates YAML frontmatter
-   - Updates database with results
+- **Total Plugins**: 4
+- **Total Skills**: 21
+- **Schema Compliance**: 100%
 
 ## Plugin Developer Guide
 
 ### Adding Skills to Your Plugin
 
-1. Create skill directory: \`plugins/your-plugin/skills/skill-adapter/\`
+1. Create skill directory: `plugins/<category>/<pack-name>/skills/<skill-name>/`
 2. Create SKILL.md with 2025 schema frontmatter
-3. Validate: \`python3 scripts/validate-skills-schema.py\`
+3. Validate: `python3 scripts/validate-skills-schema.py`
 4. Test locally with plugin
+5. Add entry to `.claude-plugin/marketplace.json` and `marketplace.extended.json`
 
 ### Best Practices
 
@@ -82,40 +58,9 @@ Skills are restricted to specific tool sets for security and performance:
 4. **Step-by-step Workflows**: Break complex tasks into phases
 5. **Real Examples**: Include actual usage scenarios
 
-## Validation Tools
-
-### Plugin Validator Package (NEW in v1.3.2)
-
-```bash
-# Validate your plugin (includes skills validation)
-npx claude-plugin-validator ./your-plugin
-
-# Auto-fix common issues
-npx claude-plugin-validator ./your-plugin --fix
-
-# Scan all installed plugins
-npx claude-plugin-validator --installed
-```
-
-### Schema Validation Scripts
-
-```bash
-# Validate all skills comply with 2025 schema
-python3 scripts/validate-skills-schema.py
-
-# Generate skills for next plugin in queue
-./scripts/next-skill.sh
-```
-
 ## Resources
 
-- **GitHub Issues**: https://github.com/jeremylongshore/claude-code-plugins/issues
-- **Discord**: https://discord.com/invite/6PPFFzqPDZ (#claude-code channel)
-- **Documentation**: \`scripts/SKILLS_AUTOMATION.md\`
-
----
-
-**Note:** Dancer's packaged Agent Skills follow the Dancer 2025 package schema for consistent quality and security. Do not require Dancer-only fields in Superpowers or vault-native source protocols unless an adapter note says that runtime needs them.
+- **Repository**: https://github.com/JackReis/dancer
 
 ## Repository Remote Policy
 - Repo policy: GitHub is primary `origin` and CI/CD source; GitLab is backup remote (`gitlab`) with GitLab CI disabled.
