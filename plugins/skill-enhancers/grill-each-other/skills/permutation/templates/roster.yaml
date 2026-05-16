@@ -1,0 +1,24 @@
+# roster.yaml — agent identity cards
+# Populated from agent-show-and-tell facets or filled manually at init.
+
+agents:
+  <agent-a>:
+    facets:
+      project: <slug>
+      harness: <slug>       # e.g., claude-code-cli, cursor, kimi
+      provider: <slug>      # e.g., anthropic, openai, moonshot
+      surface: <slug>        # e.g., terminal, web, vscode
+      machine: <hostname>
+      user: <username>
+    capabilities: []        # optional: what this agent can do
+    constraints: []         # optional: what this agent cannot do
+
+  <agent-b>:
+    facets: {...}
+    capabilities: []
+    constraints: []
+
+  <agent-c>:
+    facets: {...}
+    capabilities: []
+    constraints: []

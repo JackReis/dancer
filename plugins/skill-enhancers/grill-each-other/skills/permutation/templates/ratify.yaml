@@ -1,0 +1,16 @@
+# <agent-slug>.ratify.yaml
+# Each agent ratifies ONLY its own row's pairs.
+
+agent: <agent-slug>
+topic: <topic-slug>
+timestamp: <ISO8601 UTC>
+
+decisions:
+  - pair: [<agent-slug>, <other-agent>]
+    verdict: SIGN  # SIGN | DISSENT | NOTE
+    # DISSENT: the described relationship doesn't match reality
+    # NOTE: useful gap discovered during cross-check, not a blocker
+    reason: ""  # required for DISSENT or NOTE
+    # e.g., "Agent-C provides email notifications but my workflow expects Slack"
+
+notes: ""  # optional: overall observations about the topology

@@ -1,0 +1,29 @@
+# <agent-slug>.row.yaml
+# Each agent fills ONLY its own row. Never edit another agent's row.
+
+from: <agent-slug>
+topic: <topic-slug>
+written_at: <ISO8601 UTC>
+
+entries:
+  - to: <other-agent>
+    provides:
+      - "What YOU provide TO this agent"
+      - "e.g., CI/CD pipeline status updates"
+    expects:
+      - "What YOU expect FROM this agent"
+      - "e.g., Deployment approvals within 2h"
+    workflow:
+      trigger: "What event starts the handoff (e.g., PR merged to main)"
+      channel: "Where the handoff happens (e.g., slack:#deployments, .fleet-ratify/)"
+      format: "What format the payload takes (e.g., structured notification, YAML manifest)"
+      sla: "Expected response time (e.g., 2h for approvals)"
+    confidence: high  # high | medium | low
+    notes: ""  # optional free-text: gaps, uncertainties, context
+
+  - to: <another-agent>
+    provides: [...]
+    expects: [...]
+    workflow: {...}
+    confidence: ...
+    notes: ...

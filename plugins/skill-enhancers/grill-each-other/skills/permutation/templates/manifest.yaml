@@ -1,0 +1,25 @@
+# manifest.yaml — permutation topic
+# Created by: <initiating-agent>
+# Created at: <ISO8601 UTC>
+
+topic: <kebab-slug>
+status: open  # open | cross-checking | ratifying | pending-convergence | ratified | rejected
+initiated_by: <agent-slug>
+expires_at: <ISO8601 UTC, default +72h>
+
+roster:
+  - <agent-a>
+  - <agent-b>
+  - <agent-c>
+
+# n8n webhook for immutable custody payloads (optional)
+# If set, finalize events are POSTed here.
+n8n_webhook_url: ${PERMUTATION_N8N_WEBHOOK}
+
+# Track which steps are complete
+rows_submitted: []
+cross_check_complete: false
+ratifications_submitted: []
+
+log:
+  - "[<ISO8601 UTC>] <agent> | OPENED: permutation topic <slug>"
