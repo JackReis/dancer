@@ -1,7 +1,7 @@
 {
   "name": "autonomous-ai-agents",
-  "version": "0.3.0",
-  "description": "Claude Code's on-ramp to Jack's fleet-coordination primitives. v0.1: fleet-identity skill (who runs Wings/Zoe/Mara/Kopi). v0.2: Hermes (Wings) messaging bridge via 'hermes mcp serve' (10 tools) + hermes-bridge skill. v0.3: OpenClaw (Zolivier/Zoe) messaging bridge via 'openclaw mcp serve' (9 tools) + openclaw-bridge skill (with Klawz security disclosure). Wings + Zoe are the fleet's shared async-messaging substrate; this plugin wires Claude Code's side of both halves.",
+  "version": "0.4.0",
+  "description": "Claude Code's on-ramp to Jack's fleet-coordination primitives. Fleet-identity (who runs Wings/Zoe/Mara/Kopi). Hermes (Wings) messaging bridge via 'hermes mcp serve' (10 tools). OpenClaw (OLIVIER_MBP/Zoe) messaging bridge via 'openclaw mcp serve' (9 tools, Klawz boundaries). Fleet-ratify: N-agent attestation for converged artifacts.",
   "author": {
     "name": "Jack Reis",
     "email": "jackareis@gmail.com"
@@ -13,7 +13,7 @@
     "agents",
     "hermes",
     "wings",
-    "zolivier",
+    "olivier",
     "zoe",
     "openclaw",
     "kimiclaw",
@@ -29,7 +29,9 @@
     "mcp",
     "messaging",
     "coordination",
-    "tipi"
+    "tipi",
+    "ratification",
+    "fleet-ratify"
   ],
   "mcpServers": {
     "hermes": {
@@ -42,7 +44,7 @@
       "type": "stdio",
       "command": "openclaw",
       "args": ["mcp", "serve"],
-      "description": "OpenClaw gateway messaging bridge (Zolivier/Zoe runtime). Async-messaging substrate via Jack's local OpenClaw gateway — Discord, Telegram, Slack on Zolivier-managed channels. 9 tools: conversations_list, conversation_get, messages_read, messages_send, attachments_fetch, events_poll, events_wait, permissions_list_open, permissions_respond. Requires `openclaw` CLI on PATH (install: brew install openclaw, then run gateway via launchd plist `ai.openclaw.gateway`). See companion skill openclaw-bridge for Klawz security boundaries."
+      "description": "OpenClaw gateway messaging bridge (OLIVIER_MBP/Zoe runtime). Async-messaging substrate via Jack's local OpenClaw gateway — Discord, Telegram, Slack on OLIVIER_MBP-managed channels. 9 tools: conversations_list, conversation_get, messages_read, messages_send, attachments_fetch, events_poll, events_wait, permissions_list_open, permissions_respond. Requires `openclaw` CLI on PATH (install: brew install openclaw, then run gateway via launchd plist `ai.openclaw.gateway`). See companion skill openclaw-bridge for Klawz security boundaries."
     }
   }
 }

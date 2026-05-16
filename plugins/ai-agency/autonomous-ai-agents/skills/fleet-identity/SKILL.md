@@ -1,6 +1,6 @@
 ---
 name: fleet-identity
-description: This skill should be used when the user asks "who is Wings", "who is Zoe", "who runs Kopi", "fleet identity", "fleet mapping", "agent mapping", "identity map", "autonomous ai agent", "what agent is behind X", or needs to look up which runtime agent is behind a Discord/Telegram surface (or vice versa). Returns the canonical mapping from ~/Documents/Coordination/ without duplicating data. Covers Hermes/Wings, OLIVIER_MBP/Zoe (formerly Zolivier/Zoe), KimiClaw/Mara/Kopi, and any future agents added to the coordination folder.
+description: This skill should be used when the user asks "who is Wings", "who is Zoe", "who runs Kopi", "fleet identity", "fleet mapping", "agent mapping", "identity map", "autonomous ai agent", "what agent is behind X", or needs to look up which runtime agent is behind a Discord/Telegram surface (or vice versa). Returns the canonical mapping from ~/Documents/Coordination/ without duplicating data. Covers Hermes/Wings, OLIVIER_MBP/Zoe, KimiClaw/Mara/Kopi, and any future agents added to the coordination folder.
 ---
 
 # Fleet Identity Lookup
@@ -9,7 +9,7 @@ description: This skill should be used when the user asks "who is Wings", "who i
 
 Jack's autonomous-AI-agent fleet separates two things:
 
-- **Runtime agents** — processes on a machine (Hermes, OLIVIER_MBP (formerly Zolivier), KimiClaw, a Claude Code session, etc.)
+- **Runtime agents** — processes on a machine (Hermes, OLIVIER_MBP, KimiClaw, a Claude Code session, etc.)
 - **Platform surfaces** — Discord/Telegram bot user accounts that relay messages to/from a runtime agent (Wings, Zoe, Mara, Kopi)
 
 This skill answers "which agent is behind this surface?" (and the reverse) by reading the canonical mapping Jack maintains at `~/Documents/Coordination/`. It never stores data of its own — pure pointer.
@@ -27,7 +27,7 @@ User says, or asks:
 **Do NOT use** for:
 
 - Looking up Discord bot **tokens** or channel routing — that's `dizzy.py` IDENTITIES (a separate primitive). This skill is semantic-intent only.
-- Delegating a task to a specific agent — that's the (future v0.2) Hermes MCP integration, or `openclaw` MCP for OLIVIER_MBP.
+- Delegating a task to a specific agent — use `hermes mcp serve` for Hermes or `openclaw mcp serve` for OLIVIER_MBP.
 
 ## Canonical Data Location
 
@@ -93,21 +93,21 @@ If the SoT file's `updated:` frontmatter (or mtime) is more than 14 days old, ap
 **Runtime agents → Discord/Telegram surfaces:**
 
 - Hermes → Wings (Discord)
-- OLIVIER_MBP → Zoe (Discord) (formerly Zolivier)
+- OLIVIER_MBP → Zoe (Discord)
 - KimiClaw → Mara (Discord)
 - KimiClaw → Kopi (Telegram)
 
 **Intent aliases (equivalences):**
 
 - Hermes ≡ Wings
-- OLIVIER_MBP ≡ Zoe (formerly Zolivier ≡ Zoe; renamed 2026-04-25 to hardware-keyed identifier)
+- OLIVIER_MBP ≡ Zoe
 - KimiClaw ≡ Mara / Kopi
 
 **Notes:**
 
-- Jack's primary (and currently only) local machine is a **MacBook Pro — Mac14,9, Apple M2 Pro, 32 GB**. Both Hermes and OLIVIER_MBP (formerly Zolivier) are local runtimes on this machine; "main Mac" and "the MacBook Pro" refer to the same box until a desktop successor lands.
+- Jack's primary (and currently only) local machine is a **MacBook Pro — Mac14,9, Apple M2 Pro, 32 GB**. Both Hermes and OLIVIER_MBP are local runtimes on this machine; "main Mac" and "the MacBook Pro" refer to the same box until a desktop successor lands.
 - Hermes is the local Nous Research Hermes Agent runtime.
-- OLIVIER_MBP (formerly Zolivier, renamed 2026-04-25) is the local OpenClaw gateway runtime. The hardware-keyed naming convention forward-prepares for desktop migration: when a Mac mini / Mac Studio lands, the migrated instance becomes OLIVIER_MINI / OLIVIER_STUDIO.
+- OLIVIER_MBP is the local OpenClaw gateway runtime. The hardware-keyed naming convention forward-prepares for desktop migration: when a Mac mini / Mac Studio lands, the migrated instance becomes OLIVIER_MINI / OLIVIER_STUDIO.
 - As of 2026-04-20, Jack is actively evaluating a **Mac mini** or **Mac Studio** as a future desktop. When that machine arrives, one of the runtimes (likely OLIVIER_MBP, which would then be renamed) is expected to move to it — update this note and the coordination mapping at that time.
 - KimiClaw is cloud-hosted OpenClaw; its Discord surface is Mara and its Telegram surface is Kopi.
 - Dizzy is a separate primitive — `dizzy.py` used by Claude Code sessions for Discord I/O. Not in this mapping because it's a CC-session relay, not a runtime agent of its own.
@@ -129,8 +129,8 @@ To register a new agent:surface pair (e.g., Jack adds a Gemini CLI local agent w
 | `=notes/inbox/agent-coordination.md` | Vault mirror of the above | **Read fallback.** OBn-indexable. |
 | `dizzy.py` IDENTITIES dict | Discord routing (tokens, channels, display names) | **Separate primitive.** This skill does not read/write IDENTITIES. |
 | `~/.claude/knowledge-graph.jsonl` | Cross-project entity store | **Not used here.** Identity map lives in the coordination folder, not the KG. |
-| `openclaw` MCP (wired 2026-04-19) | Delegation bus to OpenClaw gateway | **Delegation, not identity.** Separate concern. |
-| Future: `hermes-mcp-integration` (v0.2) | Delegation bus to Hermes runtime | **Delegation, not identity.** Will be added in a sibling skill. |
+| `openclaw` MCP (v0.3+) | Delegation bus to OpenClaw gateway | **Delegation, not identity.** Sibling skill `openclaw-bridge`. |
+| `hermes mcp serve` (v0.2+) | Delegation bus to Hermes runtime | **Delegation, not identity.** Sibling skill `hermes-bridge`. |
 
 ## Troubleshooting
 

@@ -9,9 +9,9 @@ This repository uses **Agent Skills** - model-invoked capabilities that activate
 
 ## 2025 Schema Compliance
 
-All 185 skills have been migrated to the 2025 schema standard:
+All Dancer-packaged skills have been migrated to the Dancer 2025 package schema. In the broader Agentic OS, treat this as a package/distribution schema, not the universal skill source schema. The portable minimum across Superpowers, user skills, vault skills, and package-installed skills is `name` plus `description`; `allowed-tools`, `version`, plugin manifests, commands, hooks, and MCP entries are adapter/package fields unless a target runtime explicitly requires them. See `/Users/jack.reis/Documents/=notes/docs/architecture/plugin-capability-schema-policy.md`.
 
-### Required Fields
+### Dancer Package Fields
 
 ```yaml
 ---
@@ -20,8 +20,8 @@ description: |                      # Clear "what" and "when", max 1024 chars
   What this skill does and when to use it.
   Include trigger phrases like "analyze performance" or "optimize code"
   so users know when this skill will activate.
-allowed-tools: Read, Write, Bash    # Comma-separated list of permitted tools
-version: 1.0.0                      # Semantic versioning (x.y.z)
+allowed-tools: Read, Write, Bash    # Dancer package/runtime field
+version: 1.0.0                      # Dancer package/runtime field
 ---
 ```
 
@@ -115,7 +115,7 @@ python3 scripts/validate-skills-schema.py
 
 ---
 
-**Note:** All 185 Agent Skills follow the 2025 schema standard for consistent quality and security.
+**Note:** Dancer's packaged Agent Skills follow the Dancer 2025 package schema for consistent quality and security. Do not require Dancer-only fields in Superpowers or vault-native source protocols unless an adapter note says that runtime needs them.
 
 ## Repository Remote Policy
 - Repo policy: GitHub is primary `origin` and CI/CD source; GitLab is backup remote (`gitlab`) with GitLab CI disabled.

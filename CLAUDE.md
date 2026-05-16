@@ -3,6 +3,7 @@
 This repository inherits operational policy from:
 - Global baseline: `/Users/jack.reis/Documents/=notes/CLAUDE.md`
 - Domain contract: `/Users/jack.reis/Documents/=notes/claude/contracts/DOMAIN-PLUGINS-AGENTS.md`
+- Plugin schema policy: `/Users/jack.reis/Documents/=notes/docs/architecture/plugin-capability-schema-policy.md`
 
 ### Default complex-task behavior
 - Plan first using `superpowers:writing-plans`
@@ -11,6 +12,11 @@ This repository inherits operational policy from:
 
 ### Local overrides
 Keep only repo-specific build/test/deploy details below.
+
+### Agentic OS schema boundary
+- Dancer owns package/distribution metadata for plugin-packaged skills.
+- Dancer's `allowed-tools`, `version`, plugin manifests, commands, hooks, and MCP entries are package/runtime fields, not universal source-protocol requirements.
+- Portable skill source protocols should keep `name` and `description` as the minimum unless a target adapter explicitly requires more fields.
 
 ---
 

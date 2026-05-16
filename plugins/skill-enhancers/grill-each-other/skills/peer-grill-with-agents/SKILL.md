@@ -21,7 +21,7 @@ Do NOT invoke when:
 
 ## Setup — ask the user before any writes
 
-1. **Topic slug** — what change or design is being grilled? e.g. `arbiter-rollout`, `hermes-demotion`, `pt-dissent-gate`. Default to `agent-design` if unspecified.
+1. **Topic slug** — what change or design is being grilled? e.g. `arbiter-rollout`, `hermes-demotion`, `pt-dissent-gate`. Default to `arbiter-rollout` if unspecified.
 2. **Identities** — what name is *this* agent? (`claude-opus-4-7`, `gemini-2.5-pro`, `gpt-5-codex`, etc.) What identities are the peers, and how do they invoke the skill (separate session, separate machine, manual prompt)?
 3. **Stack scope** — which subdirectories of `.claude/agents/`, `.claude/skills/`, `.claude/shared-agents/`, etc. are in scope? Anything outside is filtered out before diffing.
 4. **Round budget** — max grilling rounds per disputed branch before `ESCALATE` (default: 3, per `peer-grill`).

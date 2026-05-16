@@ -7,7 +7,7 @@ description: Use when Claude Code needs to catch up on messages that landed on J
 
 ## The mental model
 
-The fleet has heavy **thinkers** (Claude Code, Gemini CLI, ChatGPT) who work deep on tasks and lose context across session boundaries. **Wings** (Hermes) and **Zoe** (Zolivier/OpenClaw) are a shared **messaging substrate** — they receive messages from Jack's platforms (Telegram, Discord, Slack, WhatsApp, Signal, Matrix), keep them for thinkers to pick up, and route outbound replies back.
+The fleet has heavy **thinkers** (Claude Code, Gemini CLI, ChatGPT) who work deep on tasks and lose context across session boundaries. **Wings** (Hermes) and **Zoe** (OLIVIER_MBP/OpenClaw) are a shared **messaging substrate** — they receive messages from Jack's platforms (Telegram, Discord, Slack, WhatsApp, Signal, Matrix), keep them for thinkers to pick up, and route outbound replies back.
 
 This skill is Claude Code's side of the bridge. When you're mid-task and a message lands, Hermes queues it. When you reach a natural stop point, you poll the queue, catch up, reply, and keep going.
 

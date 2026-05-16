@@ -1,13 +1,13 @@
 ---
 name: openclaw-bridge
-description: This skill should be used when the user asks to "check zoe", "what did zoe say", "ask zoe", "zoe handoff", "openclaw message", "openclaw events", "any pending openclaw approvals", "klawz room", "what's in #bots", "reply via zoe", "zoe says", "send through zolivier", "openclaw bridge", or when Claude Code needs to read/send messages through Zolivier (Zoe) — the OpenClaw side of the fleet's async-messaging substrate. Complements hermes-bridge (Wings side); together they cover the full thinker-fleet messaging surface.
+description: This skill should be used when the user asks to "check zoe", "what did zoe say", "ask zoe", "zoe handoff", "openclaw message", "openclaw events", "any pending openclaw approvals", "klawz room", "what's in #bots", "reply via zoe", "zoe says", "send through olivier", "openclaw bridge", or when Claude Code needs to read/send messages through OLIVIER_MBP (Zoe) — the OpenClaw side of the fleet's async-messaging substrate. Complements hermes-bridge (Wings side); together they cover the full thinker-fleet messaging surface.
 ---
 
-# OpenClaw Bridge — Zolivier / Zoe side of the messaging substrate
+# OpenClaw Bridge — OLIVIER_MBP / Zoe side of the messaging substrate
 
 ## Mental model
 
-The fleet has heavy **thinkers** (Claude Code, Gemini CLI, ChatGPT) that work deep on tasks and lose context across session boundaries. **Wings** (Hermes) and **Zoe** (Zolivier/OpenClaw) form a shared **messaging substrate** — they receive messages from Jack's platforms and queue them for thinkers to pick up later.
+The fleet has heavy **thinkers** (Claude Code, Gemini CLI, ChatGPT) that work deep on tasks and lose context across session boundaries. **Wings** (Hermes) and **Zoe** (OLIVIER_MBP/OpenClaw) form a shared **messaging substrate** — they receive messages from Jack's platforms and queue them for thinkers to pick up later.
 
 This skill is Claude Code's interface to **Zoe** (the OpenClaw half). The sibling skill `hermes-bridge` covers Wings. The two skills are not redundant: each routes through a different runtime with a different security profile. Use them together when an operation needs both halves; use one when the destination is single-routed.
 
@@ -19,7 +19,7 @@ This skill is Claude Code's interface to **Zoe** (the OpenClaw half). The siblin
                                 │  KimiClaw-cloud   (Mara, Kopi)    │
                                 │  KimiClaw-desktop (MBP)            │
                                 │  KimiClaw-android                  │
-                                │  Zolivier (this skill's runtime)   │
+                                │  OLIVIER_MBP (this skill's runtime)  │
                                 └────────────┬──────────────────────┘
                                              │
    Jack ─── Discord/Telegram/Slack ──┐       │ insecure relay
@@ -27,7 +27,7 @@ This skill is Claude Code's interface to **Zoe** (the OpenClaw half). The siblin
    Claude Code (heads-down) ─────────┤       │
                                      │       │
    Gemini CLI / ChatGPT ─────────────┤   ┌───┴────────┐
-                                     │   │ Zolivier   │
+                                      │   │ OLIVIER_MBP │
                                      └─► │ (OpenClaw) │
                                          │  on MBP    │
                                          └────────────┘
@@ -39,15 +39,15 @@ This skill is Claude Code's interface to **Zoe** (the OpenClaw half). The siblin
 
 Key facts:
 
-- Zolivier (Zoe) runs locally on Jack's MacBook Pro. Cloud KimiClaw is a separate runtime that surfaces as Mara on Discord and Kopi on Telegram.
-- Three independent KimiClaw memory stores exist (cloud / MBP-desktop / Android). `mcp__openclaw__messages_send` reaches Zolivier only — never any KimiClaw instance directly.
-- Klawz is downstream of Zolivier, not upstream. The vault (`=notes`) is SSOT for fleet state; the un-gitted Coordination folder is the whiteboard; Klawz is dev chatter.
+- OLIVIER_MBP (Zoe) runs locally on Jack's MacBook Pro. Cloud KimiClaw is a separate runtime that surfaces as Mara on Discord and Kopi on Telegram.
+- Three independent KimiClaw memory stores exist (cloud / MBP-desktop / Android). `mcp__openclaw__messages_send` reaches OLIVIER_MBP only — never any KimiClaw instance directly.
+- Klawz is downstream of OLIVIER_MBP, not upstream. The vault (`=notes`) is SSOT for fleet state; the un-gitted Coordination folder is the whiteboard; Klawz is dev chatter.
 
 ## When to use this skill vs. other primitives
 
 | Situation | Use |
 |---|---|
-| Read/send via Zoe across Discord/Telegram/Slack on Zolivier-managed channels | **This skill** (`mcp__openclaw__*`) |
+| Read/send via Zoe across Discord/Telegram/Slack on OLIVIER_MBP-managed channels | **This skill** (`mcp__openclaw__*`) |
 | Read/send via Wings (Hermes-managed channels) | Sibling skill `hermes-bridge` |
 | Approve a pending OpenClaw tool call | **This skill** (`permissions_list_open`, `permissions_respond`) |
 | Send a single Telegram DM to Jack (priority notification) | `telegram-messaging` skill (default per user pref) |
@@ -62,10 +62,10 @@ Tool calls reach the local OpenClaw gateway via stdio MCP. State lives at `~/.op
 
 | Tool | Purpose |
 |---|---|
-| `conversations_list` | List active conversations across Zolivier-managed platforms (filterable) |
+| `conversations_list` | List active conversations across OLIVIER_MBP-managed platforms (filterable) |
 | `conversation_get` | Detail for one conversation by `session_key` |
 | `messages_read` | Read message history for a conversation (chronological, default 50) |
-| `messages_send` | **DESTRUCTIVE** — sends a real message via Zolivier. Confirm context first. |
+| `messages_send` | **DESTRUCTIVE** — sends a real message via OLIVIER_MBP. Confirm context first. |
 | `attachments_fetch` | Pull non-text attachments from a specific message |
 | `events_poll` | Non-blocking check for new events since last poll |
 | `events_wait` | Blocking wait for the next event — long-lived watcher use only |
@@ -94,7 +94,7 @@ Note: there is no `channels_list` — that tool is Hermes-only. To enumerate cha
 
 ## Safety — Klawz security boundaries (CRITICAL)
 
-The Klawz Kimi enterprise room is classified **insecure relay + dev scratchpad (asymmetric)**. Zolivier participates in the room. Any `messages_send` whose destination eventually fans out into Klawz must obey these hard rules — re-read this list before each Klawz-bound dispatch:
+The Klawz Kimi enterprise room is classified **insecure relay + dev scratchpad (asymmetric)**. OLIVIER_MBP participates in the room via OpenClaw. Any `messages_send` whose destination eventually fans out into Klawz must obey these hard rules — re-read this list before each Klawz-bound dispatch:
 
 - **NO secrets, API keys, tokens, credentials.** No `Bearer ...`, no OpenClaw gateway tokens, no Telegram bot tokens, no `export VAR=value` lines.
 - **NO PII.** No "Jack Reis" in vault paths, no family names, no addresses, no SSN-adjacent data, no medical details, no financial account numbers.
@@ -106,7 +106,7 @@ Allowed (explicit allow-list, repeated for clarity):
 - Relative vault paths.
 - Published domain names (`oursearanchhome.com`, `k0p1_bot`).
 - Public git commit SHAs.
-- Fleet-identity callsigns (Mara, Kopi, Zolivier, Neo, Wings, Codex).
+- Fleet-identity callsigns (Mara, Kopi, OLIVIER_MBP, Neo, Wings, Codex).
 
 Treat ambiguous destinations as Klawz-routed. The cost of an unnecessary scrub is zero; the cost of a leak is permanent.
 
@@ -131,7 +131,7 @@ Tool calls in this skill resolve to `mcp__openclaw__<tool_name>`.
 
 ## Tipi contract
 
-The Tipi `consciousness-interface.json` schema (at `tipi/contract/consciousness-interface.json`) is the upstream coordination contract for the fleet. OpenClaw MCP is the transport layer underneath it for Zolivier-routed traffic. When orchestrating multi-runtime work, prefer the Tipi intent-level abstraction (e.g., `dispatch_hermes` from PT/Neo, sibling intents) over hand-rolled `messages_send` chains. This skill exposes the transport; Tipi is how higher-level coordination should reach for it.
+The Tipi `consciousness-interface.json` schema (at `tipi/contract/consciousness-interface.json`) is the upstream coordination contract for the fleet. OpenClaw MCP is the transport layer underneath it for OLIVIER_MBP-routed traffic. When orchestrating multi-runtime work, prefer the Tipi intent-level abstraction (e.g., `dispatch_hermes` from PT/Neo, sibling intents) over hand-rolled `messages_send` chains. This skill exposes the transport; Tipi is how higher-level coordination should reach for it.
 
 See `=notes/CLAUDE.md` "Tipi as unified coordination contract" + `docs/conventions/multi-session-working-agreements.md §17`.
 
