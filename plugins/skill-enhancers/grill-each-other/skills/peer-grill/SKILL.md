@@ -178,7 +178,9 @@ This works for any framework, doc set, or shared mental model — not just skill
 
 ## Multi-peer (3+) extension
 
-Run pairwise reconciliations in a chain (A↔B, then merged↔C). Each pairwise run produces a new `state.merged.yaml` that becomes the next pair's input. Document the chain order in `grill-log.md` so a reader can replay it. Star/coordinator topologies are out of scope for v1.
+For N-agent consensus or ratification of a single artifact, use the **`fleet-ratify`** skill instead. `peer-grill` is optimized for 1:1 reconciliation of broad state; `fleet-ratify` is the capstone for N agents signing a specific, frozen artifact.
+
+Pairwise reconciliations in a chain (A↔B, then merged↔C) are still supported in `peer-grill` for broad state sync, but for formal decision-making by the whole fleet, `fleet-ratify` is the preferred path. Document the chain order in `grill-log.md` if using the chain method.
 
 ## Guardrails
 
