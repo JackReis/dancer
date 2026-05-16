@@ -1,18 +1,26 @@
 # Agent Skills System
 
 **Last Updated:** May 16, 2026
-**Current Status:** 4 Jack-authored plugin packs, 21 skills total
+**Current Status:** 5 Jack-authored plugin packs, 25 skills total
 
 ## Overview
 
 This repository contains **Jack Reis's own plugin packs** for Claude Code. Originally forked from the Jeremy Longshore marketplace (MIT-licensed), the inherited upstream plugins were removed on 2026-05-16. Dancer now ships only Jack-authored contributions.
+
+## Fleet Directive
+
+All agents working in this repo must follow the **Fleet Directive — Durable Evidence**:
+`~/Documents/=notes/docs/conventions/fleet-directive.md`
+
+Done = artifact + path + verification + commit + push + caveats. The evidence, not the vocabulary, is what distinguishes measurement from theatre. Autonomous workers under Arbiter satisfy evidence via `proof_of_work` schema, not handoff files.
 
 ## Plugin Packs
 
 | Pack | Category | Skills | Description |
 |---|---|---|---|
 | `autonomous-ai-agents` v0.4.0 | ai-agency | 3 + 2 MCP bridges | Fleet coordination: identity, hermes-bridge, openclaw-bridge |
-| `grill-each-other` v1.2.0 | skill-enhancers | 9 | Dialectic claim discipline: grill-me, peer-grill, fleet-ratify, etc. |
+| `grill-each-other` v1.3.0 | skill-enhancers | 10 | Dialectic claim discipline: grill-me, peer-grill, fleet-ratify, permutation, etc. |
+| `athenaeum` v0.1.0 | skill-enhancers | 3 | Streamlined dialectic: design, reconcile, ratify (curated alternative to grill-each-other) |
 | `leonardo` v1.1.0 | ai-agency | 1 | Protected-string decoder with Discord audit |
 | `pocock-engineering` v1.0.0 | skill-enhancers | 8 | SDLC skills forked from Matt Pocock's framework |
 
@@ -36,8 +44,8 @@ version: 1.0.0                      # Dancer package/runtime field
 
 ## Current Metrics
 
-- **Total Plugins**: 4
-- **Total Skills**: 21
+- **Total Plugins**: 5
+- **Total Skills**: 25
 - **Schema Compliance**: 100%
 
 ## Plugin Developer Guide
