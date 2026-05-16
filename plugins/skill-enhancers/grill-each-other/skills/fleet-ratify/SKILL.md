@@ -1,6 +1,6 @@
 ---
 name: fleet-ratify
-description: Use when the fleet must formally sign off on an artifact — a converged grill result, a vault doc, an ADR, a convention, or a proposition — and one agent's or a pair's approval is not enough. Use when chaining ratification onto a finished grill, or when a decision needs N-agent attestation with dissent recorded rather than overruled.
+description: Use when the fleet must formally sign off on an artifact — a converged grill result, a vault doc, an ADR, a convention, or a proposition — and one agent's or a pair's approval is not enough and you need fleet-wide consensus. Use when chaining ratification onto a finished grill, or when a decision needs N-agent attestation or approval with dissent recorded rather than overruled.
 ---
 
 # Fleet Ratify
@@ -62,9 +62,11 @@ instance.
 
 ## Protocol
 
-1. **Initiate** — copy the artifact verbatim to `artifact.md`; hash it
+1. **Initiate** — copy the artifact verbatim to `artifact.md` (for an inline
+   proposition with no source file, write the proposition straight into
+   `artifact.md` — that file *is* the artifact). Hash it
    (`shasum -a 256 artifact.md`); write `manifest.yaml` with the roster and
-   `expires_at` (default +72h). Log `OPENED`. Notify the roster (see Discovery).
+   `expires_at` (default +72h, UTC). Log `OPENED`. Notify the roster (Discovery).
 2. **Vote** — each rostered agent reads `artifact.md`, verifies the sha256,
    writes `<agent>.vote.yaml` — `SIGN`, or `DISSENT` with self-proposed
    atom-refs. Agents do not read peers' votes first.
@@ -75,11 +77,18 @@ instance.
    human.
 5. **Grain-gate** — the human fills `human-decision.yaml` (see below).
 6. **Converge** — per the human's choice: contested atoms get a fresh round,
-   are carved as caveats, or the artifact is rewritten and re-opened.
-7. **Terminal** — `ratified.md` written.
+   are carved as caveats, or the artifact is rewritten and re-opened as a new
+   topic carrying `supersedes: <old-topic>` in its manifest.
+7. **Terminal** — on any non-reject outcome, `ratified.md` is written and
+   `status: ratified`. A `reject` (grain-gate choice, or any dissent under
+   `mode: fast`) writes **no** `ratified.md` — the terminal record is
+   `status: rejected` plus a `REJECTED` line in `log.md`.
 
 **Merge writer** = the agent whose slug sorts first alphabetically **among
-agents who actually voted** (a no-show cannot deadlock the tally).
+agents who actually voted** (a no-show cannot deadlock the tally). The role is
+determined at tally time, not reserved: any rostered agent that, on its
+`check`, sees a complete roster (or a passed `expires_at`) computes the merge
+writer and — if that is itself — runs the tally.
 
 ## Decision rule — unanimous-or-decompose
 
@@ -87,7 +96,8 @@ agents who actually voted** (a no-show cannot deadlock the tally).
 - Any `DISSENT` / `ABSTAIN_BY_TIMEOUT` → **do not auto-recurse.** The merge
   writer aggregates dissenters' atom-refs into a decomposition preview and
   hands it to the human. Atom-refs come *only* from dissenters' votes — the
-  merge writer never invents a split.
+  merge writer never invents a split. It assigns stable `A#` (atom) / `C#`
+  (caveat) IDs during aggregation; votes carry only section+anchor.
 - `mode: fast` (low-stakes): any dissent sets `status: rejected` directly — no
   `decomposition.md`, no `human-decision.yaml`, no grain-gate. All-`SIGN`
   still ratifies normally.
@@ -115,7 +125,7 @@ The merge writer detects the filled file and resumes at step 6.
 ## Log events
 
 Every protocol step appends one line to `log.md`:
-`[<ISO8601>] <agent> | <EVENT>: <detail>`
+`[<ISO8601 UTC>] <agent> | <EVENT>: <detail>`
 
 Events: `OPENED`, `NOTIFY`, `VOTE`, `TALLY`, `DECOMPOSED`, `PENDING-HUMAN`,
 `CONVERGE`, `RATIFIED`, `REJECTED` — plus the failure events in design-doc §11
@@ -131,8 +141,10 @@ Events: `OPENED`, `NOTIFY`, `VOTE`, `TALLY`, `DECOMPOSED`, `PENDING-HUMAN`,
 | `fleet-ratify vote <topic> sign` / `dissent` | cast this agent's vote |
 | `fleet-ratify tally <topic>` | merge writer: tally, decompose, or finalize |
 
-(Commands are the `JAC-22` helper scripts; the protocol above is the contract
-they implement.)
+**The CLI is a convenience wrapper, not a dependency.** If the `fleet-ratify`
+commands are not installed (they ship as the `JAC-22` helper scripts),
+perform each Protocol step by hand — write the files directly per `templates/`.
+The protocol, not the CLI, is the contract.
 
 ## ratified.md — the terminal artifact
 

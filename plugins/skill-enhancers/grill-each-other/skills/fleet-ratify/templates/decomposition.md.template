@@ -1,0 +1,31 @@
+# <topic> — DECOMPOSITION PREVIEW
+
+Written by the merge writer when a tally finds dissent. Input to the human
+grain-gate. The merge writer assigns the stable `A#` / `C#` IDs here.
+
+**Artifact:** `<artifact_origin>`
+**artifact_sha256:** `<hash>`
+**Tally:** <S> SIGN · <D> DISSENT · <A> ABSTAIN_BY_TIMEOUT  (roster of <N>)
+
+This artifact splits into **<N> atoms — <M> unanimous, <K> contested.**
+
+## Contested atoms
+
+- **A1** — §<n> "<anchor>"
+  - objection: <text>
+  - raised_by: <agent>
+  - proposed_resolution: verifier | ticket | rewrite | carve-caveat
+
+## Human grain-gate
+
+Record your choice in `human-decision.yaml`:
+
+- `accept-split` — ratify the <M> unanimous atoms now; the <K> contested go to
+  a fresh ratification round.
+- `decompose-further` — split a named contested atom again before deciding.
+- `rewrite-with-caveats` — ratify the whole artifact with the <K> contested
+  atoms stamped as caveats (each needs a runnable `verifier:` or a `ticket:`).
+- `reject` — end the run; no `ratified.md` is written.
+
+**Cost of consensus:** <K> contested atom(s) stand between this artifact and a
+clean unanimous ratification.

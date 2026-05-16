@@ -2,7 +2,7 @@
 
 **Artifact:** `<artifact_origin>`
 **artifact_sha256:** `<the one hash every signer attested>`
-**Ratified:** <ISO8601>   **Mode:** standard
+**Ratified:** <ISO8601 UTC>   **Mode:** standard
 **Grain-gate:** <all-SIGN, no decomposition | human-decision: accept-split | human-decision: rewrite-with-caveats>
 **Supersedes:** <prior topic slug, or "none">
 
@@ -20,8 +20,8 @@ Each signer attests the single `artifact_sha256` above.
 
 | Agent | Timestamp | artifact_sha256 |
 |---|---|---|
-| <agent> | <ISO8601> | <hash> |
-| <agent> | <ISO8601> | <hash> |
+| <agent> | <ISO8601 UTC> | <hash> |
+| <agent> | <ISO8601 UTC> | <hash> |
 
 ## Caveats
 

@@ -8,6 +8,6 @@ supersedes: <prior topic slug — only if this re-opens a rewritten artifact; el
 roster:
   - <canonical-agent-slug>
   - <canonical-agent-slug>
-expires_at: <ISO8601>          # default: initiation + 72h
+expires_at: <ISO8601 UTC>      # default: initiation + 72h
 mode: standard                 # standard | fast
 status: open                   # open|pending-human|ratified|rejected — only the merge writer transitions this (see SKILL.md)
