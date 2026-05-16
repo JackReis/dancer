@@ -1,0 +1,12 @@
+# .athenaeum/<topic>/manifest.yaml — written by initiator at init.
+topic: <kebab-slug>
+initiator: <agent-slug>
+artifact_sha256: <shasum -a 256 artifact.md>
+artifact_origin: <vault-path@git-sha or "inline">
+supersedes: <prior topic slug, or omit>
+roster:
+  - <agent-slug>
+  - <agent-slug>
+expires_at: <ISO8601 UTC>       # default: +72h
+mode: standard                  # standard | fast
+status: open                    # open | pending-human | ratified | rejected

@@ -1,0 +1,25 @@
+{
+  "name": "athenaeum",
+  "version": "0.1.0",
+  "description": "Streamlined dialectic skill pack for agent design, multi-agent reconciliation, and fleet-wide attestation. Consolidates the grill-each-other patterns into 3 focused skills (design, reconcile, ratify) with progressive disclosure, cross-agent runtime detection, and a unified CLI. The opinionated, quick-start path — use grill-each-other for modular composition.",
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "keywords": [
+    "dialectic",
+    "athenaeum",
+    "design-review",
+    "reconciliation",
+    "ratification",
+    "attestation",
+    "multi-agent",
+    "skill-enhancer",
+    "byom"
+  ],
+  "category": "skill-enhancers",
+  "status": "active",
+  "tier": "free"
+}

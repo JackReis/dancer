@@ -1,0 +1,28 @@
+# <topic> — RATIFIED
+
+**artifact_sha256:** `<the one hash every signer attested>`
+**Ratified:** <ISO8601 UTC>
+**Mode:** standard
+**Grain-gate:** <all-SIGN | human-decision: ...>
+**Supersedes:** <prior topic or "none">
+
+## Ratified atom-refs
+
+- A1 — §<n> "<anchor>"
+
+## Signatures
+
+| Agent | Timestamp | artifact_sha256 |
+|---|---|---|
+| <agent> | <ISO8601> | <hash> |
+
+## Caveats
+
+- **C1** — §<n> "<anchor>"
+  - objection: <text>
+  - raised_by: <agent>
+  - verifier: `<runnable command>`        # OR ticket: <id>
+
+## Abstentions
+
+- <agent> — ABSTAIN_BY_TIMEOUT

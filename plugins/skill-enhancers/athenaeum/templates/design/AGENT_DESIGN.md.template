@@ -1,0 +1,71 @@
+# AGENT_DESIGN — <project>
+
+## Goal & success criteria
+
+<!-- What outcome does this collaboration produce, and how do we know it's done? -->
+
+## Agent roster
+
+| Agent | Responsibility | Definition file | Model |
+|---|---|---|---|
+| `<agent>` | <one sentence> | `.claude/agents/<file>` | `<model>` |
+
+## Topology
+
+<!-- ASCII diagram recommended -->
+
+## Context boundaries
+
+| Agent | Sees | Hidden from it |
+|---|---|---|
+| `<agent>` | <scope> | <scope> |
+
+## Handoffs & contracts
+
+| From | To | Contract | Validation |
+|---|---|---|---|
+| `<agent-a>` | `<agent-b>` | <schema> | <who validates> |
+
+## Shared state
+
+| Store | Schema | Writers | TTL | Conflict resolution |
+|---|---|---|---|---|
+| `<store>` | <schema> | <agents> | <ttl> | <rule> |
+
+## Tool access
+
+| Agent | Tools | Blast radius |
+|---|---|---|
+| `<agent>` | <tool list> | <what could go wrong> |
+
+## Failure modes
+
+| Agent | Failure | Detector | Recovery |
+|---|---|---|---|
+| `<agent>` | <loop/refusal/timeout> | <who notices> | <what happens> |
+
+## Inter-agent authority
+
+<!-- When agents disagree, who wins and why? -->
+
+## Human-in-the-loop
+
+<!-- When is the user pulled in, and what's the minimum context? -->
+
+## Termination
+
+<!-- What stops the collaboration? -->
+
+## Observability
+
+<!-- Logging, tracing, replayability -->
+
+## Cost & latency
+
+| Agent | Model | Token budget | Expected latency |
+|---|---|---|---|
+| `<agent>` | `<model>` | <budget> | <time> |
+
+---
+
+*Designed via athenaeum-design skill*

@@ -1,0 +1,23 @@
+# <topic> — DECOMPOSITION PREVIEW
+
+**Artifact:** `<artifact_origin>`
+**artifact_sha256:** `<hash>`
+**Tally:** <S> SIGN · <D> DISSENT · <A> ABSTAIN_BY_TIMEOUT (roster of <N>)
+
+This artifact splits into **<N> atoms — <M> unanimous, <K> contested.**
+
+## Contested atoms
+
+- **A1** — §<n> "<anchor>"
+  - objection: <text>
+  - raised_by: <agent>
+  - proposed_resolution: verifier | ticket | rewrite | carve-caveat
+
+## Human grain-gate
+
+Record your choice in `human-decision.yaml`:
+
+- `accept-split` — ratify unanimous atoms now; contested go to fresh round.
+- `decompose-further` — split a named contested atom again.
+- `rewrite-with-caveats` — ratify whole artifact with contested as caveats (each needs `verifier:` or `ticket:`).
+- `reject` — end run; no `ratified.md`.

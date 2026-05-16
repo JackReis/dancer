@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""
+Athenaeum — unified bootstrap CLI for design, reconcile, and ratify workflows.
+Usage: athenaeum <command> [args]
+
+Commands:
+  init <topic> --mode <design|reconcile|ratify>  Scaffold working directory
+  diff <topic>                                   Compute three-bucket diff
+  sign <topic>                                   LF-normalize + SHA-256 signoff
+  check                                          Find open ratifications awaiting this agent
+"""
+
+import argparse
+import hashlib
+import os
+import sys
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+VAULT_ROOT = Path.cwd()
+ATHENAEUM_DIR = VAULT_ROOT / ".athenaeum"
+SCRIPT_DIR = Path(__file__).parent.resolve()
+TEMPLATE_DIR = SCRIPT_DIR.parent / "templates"
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _detect_agent_slug() -> str:
+    """Auto-detect which agent runtime this is."""
+    if os.environ.get("CLAUDE_CODE"):
+        return "claude-code"
+    if os.environ.get("KIMI_CLI"):
+        return "kimi-cli"
+    if os.environ.get("CODEX_MODE"):
+        return "codex"
+    # Fall back to hostname + user
+    import socket
+    return f"{os.environ.get('USER', 'agent')}-{socket.gethostname().split('.')[0]}"
+
+
+def cmd_init(args):
+    topic = args.topic
+    mode = args.mode
+    topic_dir = ATHENAEUM_DIR / topic
+    topic_dir.mkdir(parents=True, exist_ok=True)
+
+    if mode == "design":
+        (topic_dir / "DESIGN.md").write_text(
+            f"# {topic}\n\n<!-- Design doc placeholder. "
+            f"Fill via athenaeum-design skill. -->\n"
+        )
+        print(f"[athenaeum] Design scaffold created at {topic_dir}/DESIGN.md")
+
+    elif mode == "reconcile":
+        tmpl = TEMPLATE_DIR / "reconcile" / "claims.yaml.template"
+        claims_tmpl = tmpl.read_text() if tmpl.exists() else _default_claims_template()
+        (topic_dir / "claims.yaml.template").write_text(claims_tmpl)
+        (topic_dir / "grill-log.md").write_text(f"# {topic} — Grill Log\n\n")
+        (topic_dir / "diff.md").write_text(f"# {topic} — Diff\n\n")
+        print(f"[athenaeum] Reconcile scaffold created at {topic_dir}/")
+        print(f"[athenaeum] Each peer should copy claims.yaml.template to "
+              f"<agent>.claims.yaml and fill it independently.")
+
+    elif mode == "ratify":
+        roster = args.roster.split(",") if args.roster else [_detect_agent_slug()]
+        manifest = {
+            "topic": topic,
+            "initiator": _detect_agent_slug(),
+            "artifact_sha256": "<run: shasum -a 256 artifact.md>",
+            "artifact_origin": str(VAULT_ROOT),
+            "roster": roster,
+            "expires_at": (datetime.now(timezone.utc) + timedelta(hours=72)).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"),
+            "mode": args.ratify_mode or "standard",
+            "status": "open",
+        }
+        # Write manifest as YAML-ish text (stdlib only)
+        lines = [f"{k}: {v}" if not isinstance(v, list) else f"{k}:\n  - " + "\n  - ".join(v)
+                 for k, v in manifest.items()]
+        (topic_dir / "manifest.yaml").write_text("\n".join(lines) + "\n")
+        (topic_dir / "artifact.md").write_text(
+            f"# {topic} — Artifact\n\n<!-- Paste or copy the artifact verbatim here. "
+            f"This file is immutable after init. -->\n"
+        )
+        (topic_dir / "log.md").write_text(f"[{_now()}] {_detect_agent_slug()} | OPENED: {topic}\n")
+        for agent in roster:
+            (topic_dir / f"{agent}.vote.yaml").write_text(
+                f"agent: {agent}\nartifact_sha256: <hash>\ndecision: SIGN\ntimestamp: {_now()}\n"
+            )
+        print(f"[athenaeum] Ratify scaffold created at {topic_dir}/")
+        print(f"[athenaeum] Roster: {', '.join(roster)}")
+        print(f"[athenaeum] Next: paste artifact into {topic_dir}/artifact.md, "
+              f"compute sha256, update manifest.")
+
+    else:
+        print(f"[athenaeum] Unknown mode: {mode}")
+        sys.exit(1)
+
+
+def cmd_diff(args):
+    topic_dir = ATHENAEUM_DIR / args.topic
+    claims_files = sorted(topic_dir.glob("*.claims.yaml"))
+    if len(claims_files) < 2:
+        print(f"[athenaeum] Need at least 2 claims files. Found: {len(claims_files)}")
+        sys.exit(1)
+
+    # Naive text-based diff: list claim ids per agent
+    # A real implementation would parse YAML; this is a bootstrap stub.
+    print(f"# {args.topic} — Diff\n")
+    print(f"Generated: {_now()}\n")
+
+    ids_per_agent = {}
+    for cf in claims_files:
+        agent = cf.stem.replace(".claims", "")
+        content = cf.read_text()
+        ids = [line.split(":", 1)[1].strip() for line in content.splitlines()
+               if line.strip().startswith("id:")]
+        ids_per_agent[agent] = ids
+        print(f"## {agent}\n")
+        for i in ids:
+            print(f"- {i}")
+        print()
+
+    all_ids = set()
+    for ids in ids_per_agent.values():
+        all_ids.update(ids)
+
+    print("## Buckets\n")
+    for cid in sorted(all_ids):
+        holders = [a for a, ids in ids_per_agent.items() if cid in ids]
+        if len(holders) == len(claims_files):
+            print(f"- **agreed**: {cid} (all)")
+        elif len(holders) == 1:
+            print(f"- **only-one-knows**: {cid} ({holders[0]})")
+        else:
+            print(f"- **disagreed**: {cid} ({', '.join(holders)})")
+
+    print(f"\n<!-- Append this block to {topic_dir}/diff.md -->")
+
+
+def cmd_sign(args):
+    topic_dir = ATHENAEUM_DIR / args.topic
+    merged = topic_dir / "state.merged.yaml"
+    if not merged.exists():
+        print(f"[athenaeum] No state.merged.yaml found at {merged}")
+        sys.exit(1)
+
+    content = merged.read_text().replace("\r\n", "\n").replace("\r", "\n")
+    sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    signoff = topic_dir / "signoff.md"
+    with signoff.open("a") as f:
+        f.write(f"agent: {_detect_agent_slug()}\n")
+        f.write(f"timestamp: {_now()}\n")
+        f.write(f"merged_state_sha256: {sha}\n")
+        f.write(f'attestation: "I attest the above merged state as the agreed truth."\n\n')
+    print(f"[athenaeum] Signoff appended. sha256: {sha}")
+
+
+def cmd_check(args):
+    if not ATHENAEUM_DIR.exists():
+        print("[athenaeum] No .athenaeum/ directory found.")
+        return
+
+    me = _detect_agent_slug()
+    found = 0
+    for manifest in ATHENAEUM_DIR.rglob("manifest.yaml"):
+        # Very naive check: read raw text for roster and status
+        text = manifest.read_text()
+        if "status: open" not in text and "status: pending-human" not in text:
+            continue
+        if me not in text:
+            continue
+        topic = manifest.parent.name
+        vote_file = manifest.parent / f"{me}.vote.yaml"
+        if not vote_file.exists():
+            print(f"[athenaeum] AWAITING VOTE: {topic}")
+            found += 1
+    if found == 0:
+        print("[athenaeum] No open ratifications awaiting your vote.")
+
+
+def _default_claims_template() -> str:
+    return """agent: <your-agent-name>
+session_started: 2026-01-01T00:00:00Z
+scope: [infra, code, decision]
+
+claims:
+  - id: <stable-slug>
+    statement: <one sentence>
+    confidence: medium
+    source: <file:line or command output>
+    scope: infra
+    last_verified: 2026-01-01T00:00:00Z
+"""
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Athenaeum CLI")
+    sub = parser.add_subparsers(dest="command")
+
+    p_init = sub.add_parser("init", help="Scaffold a topic directory")
+    p_init.add_argument("topic")
+    p_init.add_argument("--mode", required=True, choices=["design", "reconcile", "ratify"])
+    p_init.add_argument("--roster", help="Comma-separated agent slugs (ratify mode)")
+    p_init.add_argument("--ratify-mode", default="standard", choices=["standard", "fast"])
+
+    p_diff = sub.add_parser("diff", help="Compute three-bucket diff")
+    p_diff.add_argument("topic")
+
+    p_sign = sub.add_parser("sign", help="Sign off on merged state")
+    p_sign.add_argument("topic")
+
+    p_check = sub.add_parser("check", help="Find open ratifications awaiting this agent")
+
+    args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    globals()[f"cmd_{args.command}"](args)
+
+
+if __name__ == "__main__":
+    main()
