@@ -1,0 +1,30 @@
+{
+  "name": "athenaeum",
+  "version": "0.1.0",
+  "description": "Dialectic skill pack for agent design, reconciliation, and fleet attestation",
+  "skills": [
+    "athenaeum-design",
+    "athenaeum-reconcile",
+    "athenaeum-ratify"
+  ],
+  "bin": {
+    "athenaeum": "./scripts/athenaeum"
+  },
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "keywords": [
+    "dialectic",
+    "athenaeum",
+    "design-review",
+    "reconciliation",
+    "ratification",
+    "attestation",
+    "multi-agent",
+    "skill-enhancer",
+    "byom"
+  ]
+}
