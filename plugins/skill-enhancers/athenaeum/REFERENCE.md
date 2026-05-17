@@ -169,6 +169,14 @@ If the artifact is rewritten and re-opened, the new manifest carries `supersedes
 | Caveat as prose warning | Every caveat needs `verifier:` or `ticket:`, or artifact blocks finalization. |
 | Quiet roster = consensus | No-show is `ABSTAIN_BY_TIMEOUT` — caveat for human, never silent yes. |
 
+### Visual artifacts (JAC-33)
+
+On full ratification, the merge writer generates visual representations of the result:
+- `ratified-artifact.excalidraw` — Visual JSON (using `templates/ratify/ratified-artifact.excalidraw.template`)
+- `ratified-artifact.svg` — Scalable vector graphic (using `templates/ratify/ratified-artifact.svg.template`)
+
+These templates use mustache-style placeholders for `{{topic}}`, `{{roster}}`, and `{{sha256}}`.
+
 ---
 
 ## §9 Log events

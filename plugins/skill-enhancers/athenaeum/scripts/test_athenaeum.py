@@ -299,6 +299,19 @@ class AthenaeumTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertIn("No .athenaeum/ directory found.", result.stdout)
 
+    def test_detect_agent_slug_from_card(self):
+        """Verify that _detect_agent_slug picks up identity from .well-known/agent.json."""
+        well_known = Path(self.tmpdir.name) / ".well-known"
+        well_known.mkdir()
+        (well_known / "agent.json").write_text(json.dumps({"name": "card-agent-slug"}))
+        
+        # We need to run init to see the initiator name in manifest.yaml
+        result = self._run("init", "card-topic", "--mode", "ratify")
+        self.assertEqual(result.returncode, 0)
+        
+        manifest = Path(self.tmpdir.name) / ".athenaeum" / "card-topic" / "manifest.yaml"
+        self.assertIn("initiator: card-agent-slug", manifest.read_text())
+
     def test_poll_topic(self):
         self._run("init", "test-topic", "--mode", "design", "--transport", "a2a")
         result = self._run("poll", "test-topic")

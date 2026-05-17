@@ -29,16 +29,36 @@ def _now() -> str:
 
 
 def _detect_agent_slug() -> str:
-    """Auto-detect which agent runtime this is."""
+    """Detect agent identity: Agent Card -> Env Var -> Hostname."""
+    # 1. Agent Card (A2A standard)
+    card_path = VAULT_ROOT / ".well-known" / "agent.json"
+    if card_path.exists():
+        try:
+            with open(card_path, "r") as f:
+                import json
+                card = json.load(f)
+                if card.get("name"):
+                    return card.get("name")
+        except:
+            pass
+
+    # 2. Environment Variables
+    if os.environ.get("AGENT_ID"):
+        return os.environ["AGENT_ID"]
+    if os.environ.get("AGENT_NAME"):
+        return os.environ["AGENT_NAME"]
     if os.environ.get("CLAUDE_CODE"):
         return "claude-code"
     if os.environ.get("KIMI_CLI"):
         return "kimi-cli"
     if os.environ.get("CODEX_MODE"):
         return "codex"
-    # Fall back to hostname + user
+
+    # 3. Fallback to hostname + user
     import socket
-    return f"{os.environ.get('USER', 'agent')}-{socket.gethostname().split('.')[0]}"
+    user = os.environ.get('USER', 'agent')
+    host = socket.gethostname().split('.')[0].lower()
+    return f"{user}-{host}"
 
 
 def cmd_init(args):

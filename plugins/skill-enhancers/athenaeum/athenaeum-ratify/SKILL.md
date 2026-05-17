@@ -46,7 +46,9 @@ This skill speaks A2A natively. An A2A Task represents this workflow.
 **Artifacts produced:**
 - `artifact.md` — `text/markdown`
 - `manifest.yaml` — `application/yaml`
-- `signoff.md` — `text/markdown`
+- `ratified.md` — `text/markdown`
+- `ratified-artifact.excalidraw` — Visual JSON for deep-review and presentation
+- `ratified-artifact.svg` — Scalable vector graphic for dashboards
 
 **Enable A2A for this workflow:**
 ```bash
