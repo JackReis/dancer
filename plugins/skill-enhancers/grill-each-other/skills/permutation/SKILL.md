@@ -188,6 +188,8 @@ On full ratification, the merge writer:
 3. **Generates visual topology diagrams** — each agent signs its node:
    - `ratified-topology.mermaid` — Mermaid diagram (renders in GitHub, Obsidian, Linear)
    - `ratified-topology.ascii` — ASCII art fallback for terminals and plain text
+   - `ratified-topology.excalidraw` — Visual JSON for deep-review and presentation
+   - `ratified-topology.svg` — Scalable vector graphic for dashboards
    - Each node shows: agent name, `✅ ratified` or `⚠️ misaligned`, `signed_at` timestamp
    - Each edge shows: provides/expects labels, workflow trigger, SLA
    - Misaligned pairs: dashed red lines with detail
