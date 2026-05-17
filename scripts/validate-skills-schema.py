@@ -5,11 +5,56 @@ Validates all SKILL.md files comply with 2025 schema:
 - description (required)
 - allowed-tools (recommended warning if missing)
 - version (recommended warning if missing)
+
+Optionally sends validation errors to Sentry if SENTRY_DSN is set.
 """
 
-import sys
+import os
 import re
+import sys
 from pathlib import Path
+
+
+def init_sentry() -> None:
+    dsn = os.environ.get("SENTRY_DSN", "").strip()
+    if not dsn:
+        return
+    try:
+        import sentry_sdk
+        sentry_sdk.init(
+            dsn=dsn,
+            environment=os.environ.get("SENTRY_ENVIRONMENT", "development"),
+            traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.2")),
+        )
+        sentry_sdk.set_tag("component", "dancer-validate-skills")
+        sentry_sdk.set_tag("agent", os.environ.get("AGENT_NAME", "validate-skills"))
+    except ImportError:
+        pass
+
+
+def _sentry_capture_validation(skill_path: str, errors: list[str], warnings: list[str]) -> None:
+    try:
+        import sentry_sdk
+        if not sentry_sdk.Hub.current.client:
+            return
+        sentry_sdk.add_breadcrumb(category="validate-skills", message=f"validating {skill_path}",
+                                  data={"errors": errors, "warnings": warnings})
+        if errors:
+            sentry_sdk.capture_event({
+                "level": "error",
+                "message": f"Skill schema validation failed: {skill_path}",
+                "tags": {"component": "dancer-validate-skills", "skill": skill_path},
+                "extra": {"errors": errors, "warnings": warnings},
+            })
+        elif warnings:
+            sentry_sdk.capture_event({
+                "level": "warning",
+                "message": f"Skill schema validation warnings: {skill_path}",
+                "tags": {"component": "dancer-validate-skills", "skill": skill_path},
+                "extra": {"warnings": warnings},
+            })
+    except ImportError:
+        pass
 
 def extract_frontmatter(content):
     """Extract YAML frontmatter"""
@@ -84,6 +129,7 @@ def validate_skill(file_path):
     return {'errors': errors, 'warnings': warnings}
 
 def main():
+    init_sentry()
     plugins_dir = Path('/home/user/claude-code-plugins-plus/plugins')
     skill_files = list(plugins_dir.rglob('skills/*/SKILL.md'))
 
@@ -110,10 +156,13 @@ def main():
             total_errors += len(result['errors'])
             files_with_errors.append(str(skill_file.relative_to(plugins_dir)))
 
-        if result['warnings']:
-            for warning in result['warnings']:
+        if result['errors']:
+            for error in result['errors']:
                 total_warnings += 1
             files_with_warnings.append(str(skill_file.relative_to(plugins_dir)))
+
+        _sentry_capture_validation(str(skill_file.relative_to(plugins_dir)),
+                                   result.get('errors', []), result.get('warnings', []))
 
     print(f"\n{'=' * 70}")
     print(f"📊 VALIDATION SUMMARY")
