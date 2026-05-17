@@ -7,29 +7,32 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 def test_tasks_send():
     from a2a_rpc import A2ARPCServer, A2AHandler
-    server = A2ARPCServer(("127.0.0.1", 18765), A2AHandler)
-    t = threading.Thread(target=server.serve_forever, daemon=True)
-    t.start()
-    time.sleep(0.2)
+    with tempfile.TemporaryDirectory() as tmp:
+        os.environ["ATHENAEUM_VAULT"] = tmp
+        server = A2ARPCServer(("127.0.0.1", 18765), A2AHandler)
+        t = threading.Thread(target=server.serve_forever, daemon=True)
+        t.start()
+        time.sleep(0.2)
 
-    try:
-        req = urllib.request.Request(
-            "http://127.0.0.1:18765/",
-            data=json.dumps({
-                "jsonrpc": "2.0",
-                "method": "tasks/send",
-                "params": {"task": {"id": "t1", "sessionId": "s1", "status": "submitted"}},
-                "id": 1,
-            }).encode(),
-            headers={"Content-Type": "application/json"},
-        )
-        resp = urllib.request.urlopen(req)
-        data = json.loads(resp.read())
-        assert data["jsonrpc"] == "2.0"
-        assert data["result"]["task"]["id"] == "t1"
-        assert data["result"]["task"]["status"] == "submitted"
-    finally:
-        server.shutdown()
+        try:
+            req = urllib.request.Request(
+                "http://127.0.0.1:18765/",
+                data=json.dumps({
+                    "jsonrpc": "2.0",
+                    "method": "tasks/send",
+                    "params": {"task": {"id": "t1", "sessionId": "s1", "status": "submitted"}},
+                    "id": 1,
+                }).encode(),
+                headers={"Content-Type": "application/json"},
+            )
+            resp = urllib.request.urlopen(req)
+            data = json.loads(resp.read())
+            assert data["jsonrpc"] == "2.0"
+            assert data["result"]["task"]["id"] == "t1"
+            assert data["result"]["task"]["status"] == "submitted"
+        finally:
+            server.shutdown()
+            del os.environ["ATHENAEUM_VAULT"]
 
 
 def test_tasks_get():
