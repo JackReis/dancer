@@ -95,6 +95,18 @@ def cmd_init(args):
         print(f"[athenaeum] Unknown mode: {mode}")
         sys.exit(1)
 
+    # A2A Task persistence
+    sys.path.insert(0, str(SCRIPT_DIR))
+    try:
+        from a2a_task import init_task, save_task
+        task = init_task(topic, mode, round_budget=3, formality=(args.ratify_mode or "quick"))
+        save_task(task, ATHENAEUM_DIR / topic)
+        print(f"[athenaeum] A2A Task created: {task.id}")
+    except Exception as exc:
+        print(f"[athenaeum] A2A Task creation skipped: {exc}")
+    finally:
+        sys.path.pop(0)
+
 
 def cmd_diff(args):
     topic_dir = ATHENAEUM_DIR / args.topic
