@@ -35,6 +35,35 @@ description: Fleet-wide formal attestation of an immutable artifact with dissent
 - `scripts/athenaeum check` — glob open ratifications where this agent is rostered and has not voted.
 - n8n can alert the roster, but `check` is the floor — it works even if notifications fail.
 
+## A2A interop
+
+This skill speaks A2A natively. An A2A Task represents this workflow.
+
+**Task metadata:**
+- `athenaeum_mode: ratify`
+- `status` lifecycle: `submitted` → `working` → `input-required` → `completed`
+
+**Artifacts produced:**
+- `artifact.md` — `text/markdown`
+- `manifest.yaml` — `application/yaml`
+- `signoff.md` — `text/markdown`
+
+**Invoking via A2A:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tasks/send",
+  "params": {
+    "task": {
+      "id": "athenaeum-ratify-my-topic",
+      "sessionId": "<agent-session>",
+      "status": "submitted",
+      "metadata": {"athenaeum_mode": "ratify", "topic": "my-topic"}
+    }
+  }
+}
+```
+
 ## Sibling skills
 
 - `athenaeum-design` — design the artifact before ratifying it

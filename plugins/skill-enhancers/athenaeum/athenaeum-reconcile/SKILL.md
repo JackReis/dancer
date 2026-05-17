@@ -39,6 +39,35 @@ Default: `quick` if unspecified.
 
 Paste the one-page prompt from `templates/reconcile/peer-prompt.md` into the peer session. The protocol is symmetric — no Claude-specific assumptions.
 
+## A2A interop
+
+This skill speaks A2A natively. An A2A Task represents this workflow.
+
+**Task metadata:**
+- `athenaeum_mode: reconcile`
+- `status` lifecycle: `submitted` → `working` → `input-required` → `completed`
+
+**Artifacts produced:**
+- `diff.md` — `text/markdown`
+- `grill-log.md` — `text/markdown`
+- `state.merged.yaml` — `application/yaml`
+
+**Invoking via A2A:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tasks/send",
+  "params": {
+    "task": {
+      "id": "athenaeum-reconcile-my-topic",
+      "sessionId": "<agent-session>",
+      "status": "submitted",
+      "metadata": {"athenaeum_mode": "reconcile", "topic": "my-topic"}
+    }
+  }
+}
+```
+
 ## Sibling skills
 
 - `athenaeum-design` — design something before reconciling it
