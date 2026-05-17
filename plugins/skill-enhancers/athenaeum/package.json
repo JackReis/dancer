@@ -1,0 +1,14 @@
+{
+  "name": "athenaeum",
+  "version": "0.2.0",
+  "description": "Dialectic skill pack for agent design, reconciliation, and fleet attestation",
+  "skills": [
+    "athenaeum-design",
+    "athenaeum-reconcile",
+    "athenaeum-ratify",
+    "athenaeum-audit"
+  ],
+  "bin": {
+    "athenaeum": "./scripts/athenaeum"
+  }
+}

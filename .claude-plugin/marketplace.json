@@ -11,7 +11,7 @@
     "homepage": "https://github.com/JackReis/dancer",
     "pluginRoot": "./plugins",
     "totalPlugins": 5,
-    "skillsEnabled": 25,
+    "skillsEnabled": 26,
     "lastUpdated": "2026-05-16"
   },
   "plugins": [
@@ -127,8 +127,8 @@
     {
       "name": "athenaeum",
       "source": "./plugins/skill-enhancers/athenaeum",
-      "description": "Streamlined dialectic skill pack for agent design, multi-agent reconciliation, and fleet-wide attestation. Consolidates the grill-each-other patterns into 3 focused skills (design, reconcile, ratify) with progressive disclosure, cross-agent runtime detection, and a unified CLI. The opinionated, quick-start path \u2014 use grill-each-other for modular composition.",
-      "version": "0.1.0",
+      "description": "Streamlined dialectic skill pack for agent design, multi-agent reconciliation, and fleet-wide attestation. Consolidates the grill-each-other patterns into 4 focused skills (design, reconcile, ratify, audit) with progressive disclosure, cross-agent runtime detection, and a unified CLI. The opinionated, quick-start path \u2014 use grill-each-other for modular composition.",
+      "version": "0.2.0",
       "category": "skill-enhancers",
       "keywords": [
         "dialectic",
