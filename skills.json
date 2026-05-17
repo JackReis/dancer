@@ -3,12 +3,13 @@
     {
       "name": "athenaeum",
       "category": "dialectic",
-      "version": "0.1.0",
-      "description": "Dialectic skill pack for agent design, reconciliation, and fleet attestation",
+      "version": "0.2.0",
+      "description": "Dialectic skill pack for agent design, multi-agent reconciliation, fleet-wide attestation, and code-aware agent-stack audit",
       "skills": [
         "athenaeum-design",
         "athenaeum-reconcile",
-        "athenaeum-ratify"
+        "athenaeum-ratify",
+        "athenaeum-audit"
       ],
       "source": "./plugins/skill-enhancers/athenaeum"
     }
