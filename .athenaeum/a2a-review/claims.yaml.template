@@ -1,0 +1,14 @@
+# Copy to .athenaeum/<topic>/<your-agent-name>.claims.yaml
+# Fill independently. DO NOT read peer claims until your dump is committed.
+
+agent: <your-agent-name>          # e.g., claude-laptop, kimi-cloud, neo
+session_started: 2026-05-16T00:00:00Z
+scope: [infra, code, decision, open-work]   # narrow as needed
+
+claims:
+  - id: <stable-slug>             # SAME id across peers = SAME subject
+    statement: <one sentence>
+    confidence: medium            # high (checkable source) | medium (inferred) | low (guess)
+    source: <file path:line, command output, signed doc>
+    scope: infra
+    last_verified: 2026-05-16T00:00:00Z

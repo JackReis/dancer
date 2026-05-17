@@ -1,0 +1,46 @@
+agent: neo-gemini
+session_started: 2026-05-16T20:05:00Z
+scope: [architecture, standards, long-term-evolution]
+
+claims:
+  - id: standards-adoption-is-strategic
+    statement: Adopting A2A as a native protocol is strategically correct because it positions Athenaeum as interoperable with the broader agent ecosystem. Standards win markets.
+    confidence: high
+    source: "Google A2A launch (April 2025) — major vendors adopting"
+    scope: standards
+    last_verified: 2026-05-16T20:05:00Z
+
+  - id: filesystem-is-limiting
+    statement: The filesystem-native approach is a local maximum. It works for Jack's fleet but cannot scale to cross-organizational or cross-platform reconciliation.
+    confidence: medium
+    source: "Architectural analysis: shared filesystem requires shared infrastructure"
+    scope: architecture
+    last_verified: 2026-05-16T20:05:00Z
+
+  - id: agent-cards-are-underpowered
+    statement: Agent Cards as currently designed are underpowered. They should include model metadata, token budgets, latency SLAs, and trust domains.
+    confidence: medium
+    source: "A2A spec Agent Card draft — capabilities section is extensible"
+    scope: protocol
+    last_verified: 2026-05-16T20:05:00Z
+
+  - id: bundled-complexity-risk
+    statement: Bundling both modes increases cognitive load and maintenance surface. A clean migration path (filesystem → A2A with backward compat) is better than runtime mode selection.
+    confidence: medium
+    source: "Software engineering principle: mode switches create combinatorial test explosion"
+    scope: architecture
+    last_verified: 2026-05-16T20:05:00Z
+
+  - id: arbiter-should-be-a2a-native
+    statement: Arbiter should be A2A-native, not just add an endpoint. The dispatch/routing logic maps directly to A2A Task lifecycle.
+    confidence: medium
+    source: "Arbiter dispatch envelope vs A2A Task: linear_id→task.id, target→agent endpoint"
+    scope: architecture
+    last_verified: 2026-05-16T20:05:00Z
+
+  - id: sinew-replacement
+    statement: Sinew envelopes should be deprecated in favor of A2A as the cross-component contract. Maintaining both is technical debt.
+    confidence: low
+    source: "Sinew_Contract.md vs A2A spec — overlapping concerns"
+    scope: protocol
+    last_verified: 2026-05-16T20:05:00Z
