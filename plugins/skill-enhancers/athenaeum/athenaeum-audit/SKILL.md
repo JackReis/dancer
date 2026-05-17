@@ -65,6 +65,11 @@ This skill speaks A2A natively. An A2A Task represents this workflow.
 - `<agent>.claims.yaml` — `application/yaml`
 - `state.merged.yaml` — `application/yaml`
 
+**Enable A2A for this workflow:**
+```bash
+athenaeum init my-topic --mode audit --transport a2a
+```
+
 **Invoking via A2A:**
 ```json
 {

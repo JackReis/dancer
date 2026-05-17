@@ -60,6 +60,11 @@ This skill speaks A2A natively. An A2A Task represents this workflow.
 - `DESIGN.md` — `text/markdown`
 - `AGENT_DESIGN.md` — `text/markdown` (agent-stack audits)
 
+**Enable A2A for this workflow:**
+```bash
+athenaeum init my-topic --mode design --transport a2a
+```
+
 **Invoking via A2A:**
 ```json
 {

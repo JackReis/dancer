@@ -48,6 +48,11 @@ This skill speaks A2A natively. An A2A Task represents this workflow.
 - `manifest.yaml` — `application/yaml`
 - `signoff.md` — `text/markdown`
 
+**Enable A2A for this workflow:**
+```bash
+athenaeum init my-topic --mode ratify --transport a2a
+```
+
 **Invoking via A2A:**
 ```json
 {

@@ -52,6 +52,11 @@ This skill speaks A2A natively. An A2A Task represents this workflow.
 - `grill-log.md` — `text/markdown`
 - `state.merged.yaml` — `application/yaml`
 
+**Enable A2A for this workflow:**
+```bash
+athenaeum init my-topic --mode reconcile --transport a2a
+```
+
 **Invoking via A2A:**
 ```json
 {

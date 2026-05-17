@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -22,8 +23,8 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 sys.path.insert(0, str(SCRIPT_DIR))
 from a2a_task import Task, TaskStatus, save_task, load_task  # noqa: E402
 
-VAULT_ROOT = Path(os.environ.get("ATHENAEUM_VAULT", Path.cwd()))
-TASKS_ROOT = VAULT_ROOT / ".athenaeum"
+def _tasks_root() -> Path:
+    return Path(os.environ.get("ATHENAEUM_VAULT", Path.cwd())) / ".athenaeum"
 
 
 class A2AHandler(BaseHTTPRequestHandler):
@@ -53,6 +54,10 @@ class A2AHandler(BaseHTTPRequestHandler):
         method = req.get("method")
         params = req.get("params", {})
 
+        if method == "tasks/sendSubscribe":
+            self._tasks_send_subscribe(params, req_id)
+            return
+
         try:
             result = self._dispatch(method, params)
             self._send_json(200, {"jsonrpc": "2.0", "result": result, "id": req_id})
@@ -72,13 +77,13 @@ class A2AHandler(BaseHTTPRequestHandler):
         task_data = params.get("task", {})
         task = Task.from_dict(task_data)
         topic = task.metadata.get("topic", "default")
-        save_task(task, TASKS_ROOT / topic)
+        save_task(task, _tasks_root() / topic)
         return {"task": task.to_dict()}
 
     def _tasks_get(self, params: dict[str, Any]) -> dict[str, Any]:
         task_id = params.get("id")
         topic = params.get("topic", "default")
-        path = TASKS_ROOT / topic / task_id / "task.json"
+        path = _tasks_root() / topic / task_id / "task.json"
         if not path.exists():
             raise ValueError(f"Task not found: {task_id}")
         task = load_task(path)
@@ -87,13 +92,46 @@ class A2AHandler(BaseHTTPRequestHandler):
     def _tasks_cancel(self, params: dict[str, Any]) -> dict[str, Any]:
         task_id = params.get("id")
         topic = params.get("topic", "default")
-        path = TASKS_ROOT / topic / task_id / "task.json"
+        path = _tasks_root() / topic / task_id / "task.json"
         if not path.exists():
             raise ValueError(f"Task not found: {task_id}")
         task = load_task(path)
         task.status = TaskStatus.CANCELED
-        save_task(task, TASKS_ROOT / topic)
+        save_task(task, _tasks_root() / topic)
         return {"task": task.to_dict()}
+
+    def _tasks_send_subscribe(self, params: dict[str, Any], req_id: Any) -> None:
+        task_id = params.get("id")
+        topic = params.get("topic", "default")
+        path = _tasks_root() / topic / task_id / "task.json"
+        if not path.exists():
+            self._send_json(200, {"jsonrpc": "2.0", "error": {"code": -32603, "message": "Task not found"}, "id": req_id})
+            return
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "keep-alive")
+        self.end_headers()
+
+        last_state = None
+        while True:
+            try:
+                task = load_task(path)
+            except Exception:
+                time.sleep(0.5)
+                continue
+            state = task.to_dict()
+            if state != last_state:
+                try:
+                    self.wfile.write(f"data: {json.dumps(state)}\n\n".encode())
+                    self.wfile.flush()
+                except (BrokenPipeError, ConnectionResetError):
+                    break
+                last_state = state
+            if task.status in (TaskStatus.COMPLETED, TaskStatus.CANCELED, TaskStatus.FAILED):
+                break
+            time.sleep(0.5)
 
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
         return
