@@ -10,17 +10,19 @@ A dialectic skill pack for agent design, multi-agent reconciliation, and fleet-w
 npx skills add jack-reis/dancer@athenaeum-design
 npx skills add jack-reis/dancer@athenaeum-reconcile
 npx skills add jack-reis/dancer@athenaeum-ratify
+npx skills add jack-reis/dancer@athenaeum-audit
 ```
 
 Or clone and symlink into your agent's `skills/` directory.
 
-## Three skills, one lineage
+## Four skills, one lineage
 
 | Skill | Purpose | When to use |
 |---|---|---|
 | `athenaeum-design` | Rigorous design grilling | Designing agents, architectures, plans |
 | `athenaeum-reconcile` | Multi-agent state reconciliation | Two+ agents disagree; triangulate across models |
 | `athenaeum-ratify` | Fleet attestation with dissent recording | N agents must sign off on an immutable artifact |
+| `athenaeum-audit` | Code-aware stack audit + reconcile | Reviewing existing agent topology in one pass |
 
 ## Quick decision tree
 
@@ -30,6 +32,7 @@ Who is debating?
 ├── Two+ agents disagree → athenaeum-reconcile
 │   └── Low stakes? → quick mode (no crypto)
 │   └── High stakes? → formal mode (SHA-256 sign-offs)
+├── Reviewing what already exists → athenaeum-audit
 └── Whole fleet must approve → athenaeum-ratify
     └── Unanimous? → ratified
     └── Dissent? → decomposed to human grain-gate
@@ -64,18 +67,27 @@ athenaeum/
 ├── athenaeum-design/SKILL.md
 ├── athenaeum-reconcile/SKILL.md
 ├── athenaeum-ratify/SKILL.md
-├── REFERENCE.md           # Deep protocol for all three
+├── athenaeum-audit/SKILL.md
+├── REFERENCE.md           # Deep protocol for all four skills + dialectic vocabulary
 ├── scripts/
 │   └── athenaeum          # Unified bootstrap CLI
 └── templates/
     ├── design/
     ├── reconcile/
-    └── ratify/
+    ├── ratify/
+    └── audit/
 ```
+
+## Why no agent-show-and-tell?
+
+Athenaeum is the *curated path* through the dialectic skills — design, reconcile, ratify, audit. Each skill enforces convergence (branches resolve, state merges, votes tally, or dissent is explicitly decomposed).
+
+`agent-show-and-tell` is deliberately excluded because it's *visibility without convergence* — agents report independently, conflicts get named but not resolved. That's a different lineage. It lives in the **grill-each-other** pack (the modular 10-skill pack) alongside `peer-grill`, `fleet-ratify`, and `permutation`. Both packs coexist; you can use show-and-tell for fleet status rounds and athenaeum for convergence-requiring work without conflict.
+
+If you need raw visibility first, start with `agent-show-and-tell` (grill-each-other). When you need convergence, switch to `athenaeum-reconcile` or `athenaeum-ratify`.
 
 ## Roadmap / open questions
 
-- [ ] Package for `npx skills add`
-- [ ] Add `athenaeum-audit` (code-aware agent-stack audit + reconcile in one pass)
+- [ ] Package for `npx skills add` (smoke-test install experience)
 - [ ] Star-topology multi-peer reconciliation (currently pairwise chains only)
 - [ ] Auto-discovery of fleet roster from `~/Documents/Coordination/` or env var

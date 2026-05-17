@@ -1,6 +1,6 @@
 ---
 name: athenaeum-design
-description: Rigorous design grilling for agent stacks, architectures, and plans. Use when designing a multi-agent collaboration, subagent topology, fleet roster, or any complex plan that needs branch-by-branch resolution. Triggers — "design my agents", "grill this plan", "agent topology", "stress-test this architecture".
+description: Rigorous design grilling for agent stacks, architectures, and plans. Use when designing a multi-agent collaboration, subagent topology, fleet roster, or any complex plan that needs branch-by-branch resolution. Triggers — "design my agents", "grill this plan", "agent topology", "stress-test this architecture", "athenaeum design", "design grill".
 ---
 
 # Athenaeum — Design

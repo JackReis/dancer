@@ -1,6 +1,6 @@
 ---
 name: athenaeum-reconcile
-description: Two or more agents reconcile divergent understanding through a structured file-based protocol. Use when parallel sessions disagree, when a non-Claude peer needs to converge with a Claude session, or when triangulating a design across model families. Triggers — "agents disagree", "reconcile state", "peer grill", "triangulate", "two agents audit this".
+description: Two or more agents reconcile divergent understanding through a structured file-based protocol. Use when parallel sessions disagree, when a non-Claude peer needs to converge with a Claude session, or when triangulating a design across model families. Triggers — "agents disagree", "reconcile state", "peer grill", "triangulate", "two agents audit this", "athenaeum reconcile", "converge state".
 ---
 
 # Athenaeum — Reconcile

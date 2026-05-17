@@ -1,6 +1,6 @@
 ---
 name: athenaeum-audit
-description: Code-aware agent-stack audit + reconcile in one pass. Use when auditing an existing agent topology, reviewing a fleet setup, or triangulating understanding of a codebase's agent architecture across model families. Triggers — "audit the stack", "agent topology review", "fleet audit", "review agent architecture", "triangulate agent state".
+description: Code-aware agent-stack audit + reconcile in one pass. Use when auditing an existing agent topology, reviewing a fleet setup, or triangulating understanding of a codebase's agent architecture across model families. Triggers — "audit the stack", "agent topology review", "fleet audit", "review agent architecture", "triangulate agent state", "athenaeum audit", "stack audit".
 ---
 
 # Athenaeum — Audit
