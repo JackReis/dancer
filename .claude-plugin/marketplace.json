@@ -127,7 +127,7 @@
     {
       "name": "athenaeum",
       "source": "./plugins/skill-enhancers/athenaeum",
-      "description": "Streamlined dialectic skill pack for agent design, multi-agent reconciliation, and fleet-wide attestation. Consolidates the grill-each-other patterns into 4 focused skills (design, reconcile, ratify, audit) with progressive disclosure, cross-agent runtime detection, and a unified CLI. The opinionated, quick-start path \u2014 use grill-each-other for modular composition.",
+      "description": "Streamlined dialectic skill pack for agent design, multi-agent reconciliation, fleet-wide attestation, and code-aware agent-stack audit. Consolidates the grill-each-other patterns into 4 focused skills (design, reconcile, ratify, audit) with progressive disclosure, cross-agent runtime detection, and a unified CLI. The opinionated, quick-start path \u2014 use grill-each-other for modular composition.",
       "version": "0.2.0",
       "category": "skill-enhancers",
       "keywords": [
@@ -137,6 +137,8 @@
         "reconciliation",
         "ratification",
         "attestation",
+        "audit",
+        "agent-topology",
         "multi-agent",
         "skill-enhancer",
         "byom"
