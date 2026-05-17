@@ -52,6 +52,35 @@ Default: `quick` if unspecified.
 - `low` — inferred from adjacent files
 - No source found → no claim. Do not invent.
 
+## A2A interop
+
+This skill speaks A2A natively. An A2A Task represents this workflow.
+
+**Task metadata:**
+- `athenaeum_mode: audit`
+- `status` lifecycle: `submitted` → `working` → `input-required` → `completed`
+
+**Artifacts produced:**
+- `audit-report.md` — `text/markdown`
+- `<agent>.claims.yaml` — `application/yaml`
+- `state.merged.yaml` — `application/yaml`
+
+**Invoking via A2A:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tasks/send",
+  "params": {
+    "task": {
+      "id": "athenaeum-audit-my-topic",
+      "sessionId": "<agent-session>",
+      "status": "submitted",
+      "metadata": {"athenaeum_mode": "audit", "topic": "my-topic"}
+    }
+  }
+}
+```
+
 ## Sibling skills
 
 - `athenaeum-design` — design something before auditing it

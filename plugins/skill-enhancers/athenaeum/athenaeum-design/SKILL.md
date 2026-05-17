@@ -48,6 +48,34 @@ description: Rigorous design grilling for agent stacks, architectures, and plans
 - `templates/design/AGENT_DESIGN.md.template` — agent stack
 - `templates/design/DESIGN.md.template` — generic plan
 
+## A2A interop
+
+This skill speaks A2A natively. An A2A Task represents this workflow.
+
+**Task metadata:**
+- `athenaeum_mode: design`
+- `status` lifecycle: `submitted` → `working` → `input-required` → `completed`
+
+**Artifacts produced:**
+- `DESIGN.md` — `text/markdown`
+- `AGENT_DESIGN.md` — `text/markdown` (agent-stack audits)
+
+**Invoking via A2A:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tasks/send",
+  "params": {
+    "task": {
+      "id": "athenaeum-design-my-topic",
+      "sessionId": "<agent-session>",
+      "status": "submitted",
+      "metadata": {"athenaeum_mode": "design", "topic": "my-topic"}
+    }
+  }
+}
+```
+
 ## Sibling skills
 
 - `athenaeum-reconcile` — two+ agents reconciling divergent state

@@ -1,0 +1,46 @@
+agent: pi-gemma
+session_started: 2026-05-16T20:15:00Z
+scope: [resource-efficiency, simplicity, edge-deployment]
+
+claims:
+  - id: a2a-is-too-heavy
+    statement: A2A adds significant overhead: JSON-RPC parsing, HTTP server, Agent Cards, typed Artifacts. For edge deployments (Gemma on local hardware), this is too heavy.
+    confidence: high
+    source: "Gemma 3B inference on M1 Mac — CPU budget is tight; extra Python processes matter"
+    scope: resource-efficiency
+    last_verified: 2026-05-16T20:15:00Z
+
+  - id: filesystem-is-simpler
+    statement: The filesystem-native approach is simpler: read YAML, write YAML, done. No network stack, no serialization overhead, no state machine synchronization.
+    confidence: high
+    source: "athenaeum scripts: pure stdlib, no dependencies"
+    scope: simplicity
+    last_verified: 2026-05-16T20:15:00Z
+
+  - id: optional-a2a-is-right
+    statement: A2A should be an optional add-on, not the default. Pi should never be forced to run an HTTP server to participate in Athenaeum.
+    confidence: high
+    source: "Pi deployment model: lightweight daemon, no persistent network services"
+    scope: resource-efficiency
+    last_verified: 2026-05-16T20:15:00Z
+
+  - id: agent-cards-are-overkill
+    statement: Agent Cards are overkill for a 3B model. A simple env var or text file with skills list is sufficient.
+    confidence: high
+    source: "agent_card.py generates JSON with nested objects — parser overhead for edge"
+    scope: simplicity
+    last_verified: 2026-05-16T20:15:00Z
+
+  - id: bundled-but-default-filesystem
+    statement: The bundled pack should default to filesystem mode. A2A mode should be opt-in via `--mode a2a` flag.
+    confidence: high
+    source: "Principle of least surprise: existing users should not see behavior change"
+    scope: simplicity
+    last_verified: 2026-05-16T20:15:00Z
+
+  - id: test-overhead-concern
+    statement: The A2A test suite adds 3 new test files. Each test spawns an HTTP server. This slows CI and local development.
+    confidence: medium
+    source: "test_a2a_rpc.py: spawns ThreadingHTTPServer on port 18765"
+    scope: resource-efficiency
+    last_verified: 2026-05-16T20:15:00Z

@@ -2,6 +2,7 @@
 """Comprehensive unit tests for the athenaeum bootstrap CLI script."""
 
 import hashlib
+import json
 import os
 import subprocess
 import sys
@@ -45,6 +46,16 @@ class AthenaeumTests(unittest.TestCase):
         self.assertTrue(design_md.exists(), "DESIGN.md should exist")
         content = design_md.read_text()
         self.assertIn("test-topic", content, "DESIGN.md should contain topic name")
+
+    def test_init_design_creates_task_json(self):
+        result = self._run("init", "test-topic", "--mode", "design")
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        topic_dir = Path(self.tmpdir.name) / ".athenaeum" / "test-topic"
+        task_files = list(topic_dir.glob("*/task.json"))
+        self.assertTrue(len(task_files) > 0, "task.json should exist under a task-id directory")
+        data = json.loads(task_files[0].read_text())
+        self.assertEqual(data["metadata"]["athenaeum_mode"], "design")
+        self.assertEqual(data["status"], "submitted")
 
     # ------------------------------------------------------------------
     # Step 2: init --mode reconcile

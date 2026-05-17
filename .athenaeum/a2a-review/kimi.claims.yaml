@@ -1,0 +1,53 @@
+agent: kimi-code
+session_started: 2026-05-16T20:00:00Z
+scope: [architecture, protocol, compatibility]
+
+claims:
+  - id: coexistence-over-replacement
+    statement: The A2A-native version must coexist with the filesystem-native version, not replace it. Both serve different use cases.
+    confidence: high
+    source: "user instruction: 'don't let it overwrite our existing creation'"
+    scope: architecture
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: bundled-a-la-carte
+    statement: The final deliverable should be a bundled pack with an option to choose native filesystem mode or A2A mode at init time.
+    confidence: high
+    source: "user instruction: 'bundled version with option to choose which version to use'"
+    scope: architecture
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: a2a-external-interop
+    statement: A2A mode is specifically for interacting with external agents (Google, Anthropic, OpenAI ecosystems). Filesystem mode is for internal fleet coordination.
+    confidence: high
+    source: "A2A spec design center: cross-vendor agent interop"
+    scope: protocol
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: durability-is-non-negotiable
+    statement: Filesystem durability must remain the persistence layer even in A2A mode. A2A Tasks are serialized to disk. This is Athenaeum's differentiator.
+    confidence: high
+    source: "fleet-directive.md: Done = artifact + path + verification + commit + push + caveats"
+    scope: architecture
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: arbiter-a2a-endpoint
+    statement: Arbiter should gain an A2A JSON-RPC endpoint on a separate port (18765) while keeping its existing HTTP API on 8765.
+    confidence: medium
+    source: "arbiter_shim.py v0.2 — adding endpoint without breaking existing routes"
+    scope: architecture
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: agent-cards-replace-env-detection
+    statement: Agent Cards should replace the hacky _detect_agent_slug() function as the canonical identity mechanism.
+    confidence: medium
+    source: "agent_card.py design: AGENT_NAME env var + runtime detection"
+    scope: protocol
+    last_verified: 2026-05-16T20:00:00Z
+
+  - id: sse-is-future-work
+    statement: SSE streaming (tasks/sendSubscribe) is explicitly out of scope for v0.1. Polling tasks/get is sufficient.
+    confidence: high
+    source: "writing-plans Task 4: SSE stub only, not full implementation"
+    scope: protocol
+    last_verified: 2026-05-16T20:00:00Z
