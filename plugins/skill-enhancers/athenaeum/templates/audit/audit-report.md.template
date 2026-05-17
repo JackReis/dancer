@@ -1,0 +1,157 @@
+# Audit Report — <topic>
+
+| Field | Value |
+|---|---|
+| Topic | <topic> |
+| Date | <YYYY-MM-DD> |
+| Auditors | <agent-a>, <agent-b>, ... |
+| Mode | quick / formal |
+| Status | draft / converged / signed |
+
+---
+
+## 1. Goal & success criteria
+
+**Findings:**
+<!-- What outcome does the collaboration produce, and how do we know it's done? -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 2. Agent roster
+
+**Findings:**
+<!-- For each agent, confirm responsibility against its frontmatter. -->
+
+| Agent | Responsibility | Definition file | Confidence | Source | Action item |
+|---|---|---|---|---|---|
+| `<agent>` | <one sentence> | `.claude/agents/<file>` | high / medium / low | `<file:line>` | <what to do> |
+
+## 3. Topology
+
+**Findings:**
+<!-- Orchestrator, pipeline, peer-to-peer, supervisor-tree, or state-machine? -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 4. Context boundaries
+
+**Findings:**
+<!-- What does each agent see, what is hidden, and why? -->
+
+| Agent | Sees | Hidden | Confidence | Source | Action item |
+|---|---|---|---|---|---|
+| `<agent>` | <scope> | <scope> | high / medium / low | `<file:line>` | <what to do> |
+
+## 5. Handoffs & contracts
+
+**Findings:**
+<!-- Exact input/output schema between agents; who validates. -->
+
+| From | To | Contract | Validation | Confidence | Source | Action item |
+|---|---|---|---|---|---|---|
+| `<agent-a>` | `<agent-b>` | <schema> | <who> | high / medium / low | `<file:line>` | <what to do> |
+
+## 6. Shared state
+
+**Findings:**
+<!-- Mutable persistence: store, schema, writers, conflict resolution, TTL. -->
+
+| Store | Schema | Writers | TTL | Conflict resolution | Confidence | Source | Action item |
+|---|---|---|---|---|---|---|---|
+| `<store>` | <schema> | <agents> | <ttl> | <rule> | high / medium / low | `<file:line>` | <what to do> |
+
+## 7. Tool access
+
+**Findings:**
+<!-- Which agent gets which tools; blast radius of each. -->
+
+| Agent | Tools | Blast radius | Confidence | Source | Action item |
+|---|---|---|---|---|---|
+| `<agent>` | <tool list> | <what could go wrong> | high / medium / low | `<file:line>` | <what to do> |
+
+## 8. Per-agent failure modes
+
+**Findings:**
+<!-- Loops, refusals, timeouts, partial output. Who detects and recovers. -->
+
+| Agent | Failure | Detector | Recovery | Confidence | Source | Action item |
+|---|---|---|---|---|---|---|
+| `<agent>` | <loop/refusal/timeout> | <who notices> | <what happens> | high / medium / low | `<file:line>` | <what to do> |
+
+## 9. Inter-agent disagreement & authority
+
+**Findings:**
+<!-- When agents contradict, who overrides whom and on what grounds? -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 10. Human-in-the-loop
+
+**Findings:**
+<!-- When is the user pulled in, and what's the minimum context they need? -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 11. Termination
+
+**Findings:**
+<!-- What stops the collaboration: signal, budget, consensus, HITL veto? -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 12. Observability
+
+**Findings:**
+<!-- Logging, tracing, replayability. -->
+
+| Confidence | Source | Action item |
+|---|---|---|
+| high / medium / low | `<file:line>` | <what to do> |
+
+## 13. Cost & latency
+
+**Findings:**
+<!-- Token budget per agent, expected wall-clock, what gets cut first. -->
+
+| Agent | Model | Token budget | Expected latency | Confidence | Source | Action item |
+|---|---|---|---|---|---|---|
+| `<agent>` | `<model>` | <budget> | <time> | high / medium / low | `<file:line>` | <what to do> |
+
+---
+
+## Summary
+
+### Converged claims
+<!-- Claims all auditors agree on -->
+
+- <claim-id>: <statement>
+
+### Disputed claims
+<!-- Claims in disagreement with auditor positions -->
+
+- <claim-id>: <statement> — <auditor-a> says <x>, <auditor-b> says <y>
+
+### Unresolved items
+<!-- Escalated to unresolved.md -->
+
+- <claim-id>: <why it could not converge>
+
+### Recommendations
+<!-- Prioritized action items for the human -->
+
+1. <recommendation>
+2. <recommendation>
+
+---
+
+*Designed via athenaeum-audit skill*
