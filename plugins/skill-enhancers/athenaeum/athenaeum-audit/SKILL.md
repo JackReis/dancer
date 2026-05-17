@@ -58,4 +58,10 @@ Default: `quick` if unspecified.
 - `athenaeum-reconcile` — reconcile divergent state before ratifying
 - `athenaeum-ratify` — fleet-wide attestation after audit
 
+### Cross-pack: athenaeum-audit + permutation
+
+- **permutation** (grill-each-other pack) ratifies the NxN relationship matrix — who provides what to whom. After permutation produces `roster.yaml`, that roster seeds athenaeum-audit's auditor list.
+- **athenaeum-audit** triangulates architectural understanding. Its topology findings (branch 3) feed into permutation's `workflow` contracts.
+- Together: permutation confirms *who talks to whom about what*, audit confirms *what each agent believes about the codebase* — producing a fully validated fleet topology.
+
 Full 13-branch protocol and confidence rules: see `REFERENCE.md` §1.

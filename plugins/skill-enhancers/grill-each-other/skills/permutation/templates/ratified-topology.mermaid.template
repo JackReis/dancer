@@ -1,0 +1,18 @@
+graph LR
+%% Permutation Topology: <topic>
+%% Generated: <ISO8601 UTC>
+%% SHA-256: <hash of ratified-matrix.json>
+
+    <AGENT_A> ---|<A provides to B>" <A expects from B>"|--> <AGENT_B>
+    <AGENT_A> ---|<A provides to C>" <A expects from C>"|--> <AGENT_C>
+    <AGENT_B> ---|<B provides to A>" <B expects from A>"|--> <AGENT_A>
+    <AGENT_B> -.->|<misaligned: description>|--> <AGENT_C>
+
+%% Signed nodes (each agent ratifies its own row)
+    classDef ratified fill:#4CAF50,stroke:#2E7D32,stroke-width:2px
+    classDef misaligned fill:#FFC107,stroke:#FF6F00,stroke-width:2px
+    classDef gap fill:#E0E0E0,stroke:#9E9E9E,stroke-width:2px,stroke-dasharray: 5 5
+
+    class <AGENT_A> ratified
+    class <AGENT_B> ratified
+    class <AGENT_C> misaligned

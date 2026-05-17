@@ -1,0 +1,27 @@
+Permutation Topology: <topic>
+Generated: <ISO8601 UTC>
+SHA-256: <hash of ratified-matrix.json>
+
+   ┌─────────────┐  provides: <A→B provides>     ┌─────────────┐
+   │   <AGENT_A>  │  expects: <A→B expects>        │   <AGENT_B>  │
+   │  ✅ ratified │─────── ───────────────────────▶│  ✅ ratified │
+   │  signed: TS  │  workflow: <trigger> <channel>│  signed: TS  │
+   └─────────────┘  SLA: <sla>                     └──────┬──────┘
+          │                                                 │
+          │ provides: <A→C provides>                       │
+          │ expects: <A→C expects>                         │ provides: <B→C provides>
+          │ workflow: <trigger> <channel>                  │ expects: <B→C expects>
+          ▼                                                 ▼
+   ┌─────────────┐  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐  ┌─────────────┐
+   │   <AGENT_C>  │  ⚠️ MISALIGNED: <description>     │   <AGENT_D>  │
+   │  ✅ ratified │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘  │  🔲 GAP      │
+   │  signed: TS  │          (dashed = misaligned)        │  unconfirmed │
+   └─────────────┘                                      └─────────────┘
+
+LEGEND:
+  ✅ ratified  = agent signed its row (SHA-256 verified)
+  ⚠️  misaligned = cross-check found mismatch (see cross-check.md)
+  🔲  gap       = no row submitted or low confidence
+  ──▶ solid     = ratified pair
+  - - ▶ dashed   = misaligned pair
+  · · ·       = unconfirmed / gap

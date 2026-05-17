@@ -185,8 +185,15 @@ On full ratification, the merge writer:
 
 1. Writes `ratified-matrix.json` — the canonical NxN matrix
 2. Writes `ratified-matrix.md` — human-readable topology map
-3. Computes `SHA-256` of `ratified-matrix.json`
-4. Sends `permutation.finalize` payload to n8n for immutable custody
+3. **Generates visual topology diagrams** — each agent signs its node:
+   - `ratified-topology.mermaid` — Mermaid diagram (renders in GitHub, Obsidian, Linear)
+   - `ratified-topology.ascii` — ASCII art fallback for terminals and plain text
+   - Each node shows: agent name, `✅ ratified` or `⚠️ misaligned`, `signed_at` timestamp
+   - Each edge shows: provides/expects labels, workflow trigger, SLA
+   - Misaligned pairs: dashed red lines with detail
+   - Gaps: dotted lines with `unconfirmed` label
+4. Computes `SHA-256` of `ratified-matrix.json`
+5. Sends `permutation.finalize` payload to n8n for immutable custody
 
 ```json
 {
@@ -225,6 +232,8 @@ All state lives in `.permutation/<topic>/` under the repo root.
 | `convergence-gaps.md` | merge writer | unresolved misalignments for human review |
 | `ratified-matrix.json` | merge writer (terminal) | confirmed NxN topology with SHA-256 |
 | `ratified-matrix.md` | merge writer (terminal) | human-readable confirmed topology map |
+| `ratified-topology.mermaid` | merge writer (terminal) | Mermaid diagram — visual topology with per-agent node signatures |
+| `ratified-topology.ascii` | merge writer (terminal) | ASCII art diagram — terminal-friendly visual topology |
 | `log.md` | append-only, all | timestamped event log |
 
 ## n8n webhook payload format
@@ -254,12 +263,137 @@ n8n payloads are skipped — the protocol still works via filesystem alone.
 | `permutation` | Inter-agent relationships | NxN pairs, fleet topology |
 | `agent-show-and-tell` | Nothing (visibility only) | 1 report per agent, no commitment |
 | `peer-grill` | Nothing (reconciliation) | 2 agents, specific state |
+| `athenaeum-audit` | Nothing (architectural understanding) | Code-aware triangulation across model families |
+
+### Permutation + athenaeum-audit
+
+These two skills enhance each other across the fleet lifecycle:
+
+1. **permutation → athenaeum-audit**: After permutation ratifies the NxN matrix, the `roster.yaml` becomes input for athenaeum-audit's auditor list — each agent already knows its role and relationships.
+
+2. **athenaeum-audit → permutation**: After audit triangulates the architecture, the topology findings (branch 3 of the 13-branch audit) feed into permutation's `workflow` contracts — what each agent believes about the codebase informs what they can actually provide.
+
+The combination produces a **fully validated fleet topology**: permutation confirms *who talks to whom about what*, audit confirms *what each agent believes about the codebase*.
 
 A typical fleet coordination flow:
 
 1. `agent-show-and-tell` — discover what each agent knows and does
 2. **`permutation`** — ratify the relationships discovered in step 1
-3. `fleet-ratify` — ratify any decisions that emerge from the confirmed topology
+3. **`athenaeum-audit`** — triangulate architectural understanding across model families
+4. `fleet-ratify` — ratify any decisions that emerge from the confirmed topology
+
+### n8n chaining examples
+
+Permutation emits structured payloads to n8n at each protocol step. Here are example workflows:
+
+#### Workflow 1: New agent onboarding
+
+```
+n8n trigger: Linear webhook (new agent label added to fleet ticket)
+  → n8n: POST /dispatch to Arbiter with target=permutation-initiator
+  → Arbiter: permutation init --roster existing-agents,new-agent --topic onboarding-YYYY-MM-DD
+  → Each agent: fills .row.yaml
+  → n8n: POST /events permutation.discover (per-agent webhook)
+  → Merge writer: permutation cross-check
+  → Each agent: permutation ratify
+  → Merge writer: permutation tally → ratified-matrix.json
+  → n8n: POST /events permutation.finalize (SHA-256 + roster + artifact list)
+  → n8n: POST to fleet-alerts (Telegram + Discord): "Fleet topology ratified for onboarding-YYYY-MM-DD"
+```
+
+#### Workflow 2: Permutation → athenaeum-audit → fleet-ratify
+
+```
+n8n trigger: Schedule (quarterly) or manual (fleet topology stale)
+  → n8n: POST /dispatch to Arbiter with target=permutation-initiator
+  → Arbiter: permutation init --roster opencode,neo,kimi-code,hermes --topic quarterly-topology
+  → [permutation protocol runs — discover, cross-check, ratify, finalize]
+  → n8n: receives permutation.finalize payload
+  → n8n: extracts roster.yaml → seeds athenaeum-audit init
+  → [athenaeum-audit protocol runs — init, dump, triangulate, report]
+  → n8n: receives athenaeum-audit convergence signal
+  → n8n: if topology changes detected → fleet-ratify init with the ratified-matrix + audit-report as artifact
+  → [fleet-ratify protocol runs]
+  → n8n: fleet-ratify.finalize → fleet-alerts: "Quarterly fleet topology review complete"
+```
+
+#### Workflow 3: Agent role change
+
+```
+n8n trigger: Webhook (agent role/config updated in fleet config)
+  → n8n: POST /dispatch to Arbiter
+  → Arbiter: permutation init --roster full-fleet --topic role-change-YYYY-MM-DD
+  → [quick mode: agents only update rows for pairs affected by the role change]
+  → n8n: permutation.finalize payload
+  → n8n: diff against previous ratified-matrix.json
+  → n8n: if workflow contracts changed → POST to affected agents' channels
+  → n8n: fleet-alerts: "Role change ratified: agent-X → agent-Y workflow updated"
+```
+
+#### Example n8n payload (permutation.init)
+
+```json
+{
+  "schema": "permutation-v1",
+  "topic": "onboarding-2026-05-17",
+  "event": "init",
+  "timestamp": "2026-05-17T10:00:00Z",
+  "agent": "arbiter",
+  "payload": {
+    "roster": ["opencode", "neo", "kimi-code", "hermes", "zoe"],
+    "working_dir": ".permutation/onboarding-2026-05-17/",
+    "expires_at": "2026-05-20T10:00:00Z",
+    "mode": "formal"
+  }
+}
+```
+
+#### Example n8n payload (permutation.finalize)
+
+```json
+{
+  "schema": "permutation-v1",
+  "topic": "onboarding-2026-05-17",
+  "event": "finalize",
+  "timestamp": "2026-05-17T14:30:00Z",
+  "agent": "opencode",
+  "payload": {
+    "sha256": "a1b2c3d4e5f6...",
+    "ratified_at": "2026-05-17T14:30:00Z",
+    "pairs_confirmed": 12,
+    "artifacts": [
+      "ratified-matrix.json",
+      "ratified-matrix.md"
+    ],
+    "next_steps": [
+      "Seed athenaeum-audit with roster.yaml for architectural triangulation",
+      "Schedule quarterly re-permutation"
+    ]
+  }
+}
+```
+
+#### Example n8n payload (permutation.discover per-agent)
+
+```json
+{
+  "schema": "permutation-v1",
+  "topic": "onboarding-2026-05-17",
+  "event": "discover",
+  "timestamp": "2026-05-17T11:15:00Z",
+  "agent": "neo",
+  "payload": {
+    "row_file": ".permutation/onboarding-2026-05-17/neo.row.yaml",
+    "pairs_completed": 4,
+    "pairs_total": 4,
+    "confidence_summary": {
+      "high": 2,
+      "medium": 1,
+      "low": 1
+    }
+  }
+}
+```
 
 ## Common mistakes
 
