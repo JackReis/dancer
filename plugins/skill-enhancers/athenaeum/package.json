@@ -10,5 +10,24 @@
   ],
   "bin": {
     "athenaeum": "./scripts/athenaeum"
-  }
+  },
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "keywords": [
+    "dialectic",
+    "athenaeum",
+    "design-review",
+    "reconciliation",
+    "ratification",
+    "attestation",
+    "audit",
+    "agent-topology",
+    "multi-agent",
+    "skill-enhancer",
+    "byom"
+  ]
 }
