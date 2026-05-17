@@ -75,6 +75,10 @@ _PRESERVE_MIGRATION/
 # Runtime install artifact; per-machine. Not source.
 .claude/skills/gitnexus/
 
+# GitNexus also writes cluster wiki output under .claude/skills/generated/.
+# Regenerates from `npx gitnexus analyze`; not source.
+.claude/skills/generated/
+
 # Auto-generated agent runtime memory state (project_memory.json + .lock).
 # Live realtime captures w/ session IDs + timestamps; per-machine. Not source.
 **/.claude/memories/project_memory.json
