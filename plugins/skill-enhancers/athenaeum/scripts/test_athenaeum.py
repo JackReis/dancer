@@ -47,8 +47,16 @@ class AthenaeumTests(unittest.TestCase):
         content = design_md.read_text()
         self.assertIn("test-topic", content, "DESIGN.md should contain topic name")
 
-    def test_init_design_creates_task_json(self):
+    def test_init_design_no_a2a_by_default(self):
+        """Default transport is filesystem — no task.json should be created."""
         result = self._run("init", "test-topic", "--mode", "design")
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        topic_dir = Path(self.tmpdir.name) / ".athenaeum" / "test-topic"
+        task_files = list(topic_dir.glob("*/task.json"))
+        self.assertEqual(len(task_files), 0, "task.json should NOT exist with default transport")
+
+    def test_init_design_creates_task_json_when_a2a(self):
+        result = self._run("init", "test-topic", "--mode", "design", "--transport", "a2a")
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         topic_dir = Path(self.tmpdir.name) / ".athenaeum" / "test-topic"
         task_files = list(topic_dir.glob("*/task.json"))
@@ -290,6 +298,16 @@ class AthenaeumTests(unittest.TestCase):
         result = self._run("check")
         self.assertEqual(result.returncode, 0)
         self.assertIn("No .athenaeum/ directory found.", result.stdout)
+
+    def test_poll_topic(self):
+        self._run("init", "test-topic", "--mode", "design", "--transport", "a2a")
+        result = self._run("poll", "test-topic")
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("status=submitted", result.stdout)
+
+    def test_poll_missing_topic(self):
+        result = self._run("poll", "nonexistent-topic")
+        self.assertEqual(result.returncode, 1)
 
 
 if __name__ == "__main__":

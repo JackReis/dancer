@@ -28,7 +28,28 @@ Deep protocol docs for A2A-native Athenaeum workflows.
 | `manifest.yaml` | `application/yaml` | initiator | Roster + expires_at |
 | `audit-report.md` | `text/markdown` | auditor | 13-branch findings |
 
-## §A3 JSON-RPC endpoints
+## §A3 Opt-in usage
+
+A2A is **opt-in**. By default, `athenaeum init` uses filesystem-only persistence.
+
+**Enable A2A Task creation:**
+```bash
+athenaeum init <topic> --mode <design|reconcile|ratify> --transport a2a
+```
+
+**Poll for updates (filesystem-native):**
+```bash
+athenaeum poll <topic>
+```
+
+**Start JSON-RPC server:**
+```bash
+python3 plugins/skill-enhancers/athenaeum/scripts/a2a_rpc.py
+# or with env vars:
+ATHENAEUM_A2A_HOST=0.0.0.0 ATHENAEUM_A2A_PORT=18765 python3 a2a_rpc.py
+```
+
+## §A4 JSON-RPC endpoints
 
 ### `tasks/send`
 
@@ -106,7 +127,32 @@ Cancel a Task.
 }
 ```
 
-## §A4 Agent Card example
+### `tasks/sendSubscribe`
+
+Subscribe to Task updates via Server-Sent Events (SSE).
+
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tasks/sendSubscribe",
+  "params": {"id": "athenaeum-reconcile-pricing-abc123", "topic": "pricing-decisions"},
+  "id": 4
+}
+```
+
+**Response stream:**
+```
+data: {"id":"...","status":"submitted",...}
+
+data: {"id":"...","status":"working",...}
+
+data: {"id":"...","status":"completed",...}
+```
+
+The stream ends automatically when the task reaches a terminal state (`completed`, `canceled`, or `failed`).
+
+## §A5 Agent Card example
 
 ```json
 {
@@ -127,7 +173,7 @@ Cancel a Task.
 }
 ```
 
-## §A5 Coexistence with non-A2A agents
+## §A6 Coexistence with non-A2A agents
 
 A2A-native Athenaeum agents can interoperate with filesystem-only agents:
 

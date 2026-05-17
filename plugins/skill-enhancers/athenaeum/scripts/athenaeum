@@ -95,17 +95,40 @@ def cmd_init(args):
         print(f"[athenaeum] Unknown mode: {mode}")
         sys.exit(1)
 
-    # A2A Task persistence
-    sys.path.insert(0, str(SCRIPT_DIR))
-    try:
-        from a2a_task import init_task, save_task
-        task = init_task(topic, mode, round_budget=3, formality=(args.ratify_mode or "quick"))
-        save_task(task, ATHENAEUM_DIR / topic)
-        print(f"[athenaeum] A2A Task created: {task.id}")
-    except Exception as exc:
-        print(f"[athenaeum] A2A Task creation skipped: {exc}")
-    finally:
-        sys.path.pop(0)
+    if getattr(args, "transport", "filesystem") == "a2a":
+        sys.path.insert(0, str(SCRIPT_DIR))
+        try:
+            from a2a_task import init_task, save_task
+            task = init_task(topic, mode, round_budget=3, formality=(args.ratify_mode or "quick"))
+            save_task(task, ATHENAEUM_DIR / topic)
+            print(f"[athenaeum] A2A Task created: {task.id}")
+        except Exception as exc:
+            print(f"[athenaeum] A2A Task creation skipped: {exc}")
+        finally:
+            sys.path.pop(0)
+
+
+def cmd_poll(args):
+    """Filesystem-native polling for task updates."""
+    topic_dir = ATHENAEUM_DIR / args.topic
+    if not topic_dir.exists():
+        print(f"[athenaeum] Topic not found: {args.topic}")
+        sys.exit(1)
+
+    task_dirs = [d for d in topic_dir.iterdir() if d.is_dir()]
+    if not task_dirs:
+        print(f"[athenaeum] No tasks found for topic: {args.topic}")
+        return
+
+    # Print current state of all tasks
+    import json
+    for td in sorted(task_dirs):
+        task_json = td / "task.json"
+        if task_json.exists():
+            data = json.loads(task_json.read_text())
+            print(f"[{data['id']}] status={data['status']} updatedAt={data['updatedAt']}")
+        else:
+            print(f"[{td.name}] (no task.json)")
 
 
 def cmd_diff(args):
@@ -221,6 +244,8 @@ def main():
     p_init.add_argument("--mode", required=True, choices=["design", "reconcile", "ratify"])
     p_init.add_argument("--roster", help="Comma-separated agent slugs (ratify mode)")
     p_init.add_argument("--ratify-mode", default="standard", choices=["standard", "fast"])
+    p_init.add_argument("--transport", default="filesystem", choices=["filesystem", "a2a"],
+                        help="Persistence transport: filesystem (default) or a2a")
 
     p_diff = sub.add_parser("diff", help="Compute three-bucket diff")
     p_diff.add_argument("topic")
@@ -229,6 +254,9 @@ def main():
     p_sign.add_argument("topic")
 
     p_check = sub.add_parser("check", help="Find open ratifications awaiting this agent")
+
+    p_poll = sub.add_parser("poll", help="Poll topic for A2A task status updates")
+    p_poll.add_argument("topic")
 
     args = parser.parse_args()
     if not args.command:
