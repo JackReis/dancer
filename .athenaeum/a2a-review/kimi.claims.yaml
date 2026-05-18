@@ -31,10 +31,10 @@ claims:
     scope: architecture
     last_verified: 2026-05-16T20:00:00Z
 
-  - id: arbiter-a2a-endpoint
+  - id: rbitr-a2a-endpoint
     statement: Arbiter should gain an A2A JSON-RPC endpoint on a separate port (18765) while keeping its existing HTTP API on 8765.
     confidence: medium
-    source: "arbiter_shim.py v0.2 — adding endpoint without breaking existing routes"
+    source: "rbitr_shim.py v0.2 — adding endpoint without breaking existing routes"
     scope: architecture
     last_verified: 2026-05-16T20:00:00Z
 

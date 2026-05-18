@@ -1,4 +1,4 @@
-agent: arbiter-opencode
+agent: rbitr-opencode
 session_started: 2026-05-16T20:10:00Z
 scope: [orchestration, system-integrity, routing]
 
@@ -6,14 +6,14 @@ claims:
   - id: two-apis-is-fragile
     statement: Running two HTTP APIs on different ports (8765 + 18765) increases operational fragility. A single unified API with content negotiation is better.
     confidence: high
-    source: "arbiter_shim.py v0.2 — ThreadingHTTPServer on single port; adding second server = 2x failure modes"
+    source: "rbitr_shim.py v0.2 — ThreadingHTTPServer on single port; adding second server = 2x failure modes"
     scope: orchestration
     last_verified: 2026-05-16T20:10:00Z
 
   - id: a2a-validation-in-pow
     statement: The A2A Task validator should be integrated into Arbiter's validate_proof_of_work, not as a separate shim.
     confidence: high
-    source: "arbiter_shim.py validate_proof_of_work — already checks files_changed, test_results, caveats"
+    source: "rbitr_shim.py validate_proof_of_work — already checks files_changed, test_results, caveats"
     scope: system-integrity
     last_verified: 2026-05-16T20:10:00Z
 
@@ -27,7 +27,7 @@ claims:
   - id: agent-cards-for-routing
     statement: Agent Cards should be consumed by Arbiter for routing decisions. Target selection should use Card capabilities, not hardcoded labels.
     confidence: medium
-    source: "Arbiter ALLOWED_TARGETS = frozenset({'arbiter', 'hermes', 'zoe', 'pi.dev', 'n8n'}) — static, not dynamic"
+    source: "rbitr ALLOWED_TARGETS = frozenset({'rbitr', 'hermes', 'zoe', 'pi.dev', 'n8n'}) — static, not dynamic"
     scope: routing
     last_verified: 2026-05-16T20:10:00Z
 

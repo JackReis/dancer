@@ -340,7 +340,7 @@ n8n trigger: Webhook (agent role/config updated in fleet config)
   "topic": "onboarding-2026-05-17",
   "event": "init",
   "timestamp": "2026-05-17T10:00:00Z",
-  "agent": "arbiter",
+  "agent": "rbitr",
   "payload": {
     "roster": ["opencode", "neo", "kimi-code", "hermes", "zoe"],
     "working_dir": ".permutation/onboarding-2026-05-17/",

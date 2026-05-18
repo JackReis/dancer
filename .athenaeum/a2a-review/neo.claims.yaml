@@ -31,7 +31,7 @@ claims:
     scope: architecture
     last_verified: 2026-05-16T20:05:00Z
 
-  - id: arbiter-should-be-a2a-native
+  - id: rbitr-should-be-a2a-native
     statement: Arbiter should be A2A-native, not just add an endpoint. The dispatch/routing logic maps directly to A2A Task lifecycle.
     confidence: medium
     source: "Arbiter dispatch envelope vs A2A Task: linear_id→task.id, target→agent endpoint"

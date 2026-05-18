@@ -1,6 +1,6 @@
 topic: a2a-review
 ratified_at: 2026-05-17T01:03:00Z
-ratified_by: kimi-code, neo-gemini, arbiter-opencode, pi-gemma
+ratified_by: kimi-code, neo-gemini, rbitr-opencode, pi-gemma
 rounds: 6
 escalated: 3
 
@@ -30,7 +30,7 @@ ratified:
     confidence: high
     source: unanimous after pi concern addressed
 
-  - id: arbiter-a2a-endpoint
+  - id: rbitr-a2a-endpoint
     statement: A2A JSON-RPC endpoint on separate port (18765) is Phase 1. Unified API is Phase 3.
     confidence: medium
     source: unanimous after neo concern addressed
@@ -38,7 +38,7 @@ ratified:
   - id: sse-is-future-work
     statement: SSE streaming is Phase 2. Polling tasks/get is sufficient for v0.1.
     confidence: high
-    source: unanimous after arbiter concern addressed
+    source: unanimous after rbitr concern addressed
 
 escalated:
   - id: sinew-replacement
@@ -46,7 +46,7 @@ escalated:
     confidence: low
     source: neo proposed, kimi dissented, no resolution
 
-  - id: arbiter-should-be-a2a-native
+  - id: rbitr-should-be-a2a-native
     statement: Full A2A-native Arbiter is a Phase 3 goal, not immediate.
     confidence: low
     source: neo proposed, accepted as long-term vision

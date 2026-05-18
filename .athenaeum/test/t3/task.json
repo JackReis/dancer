@@ -1,0 +1,11 @@
+{
+  "id": "t3",
+  "sessionId": "s3",
+  "status": "canceled",
+  "createdAt": "2026-05-17T02:49:47.411802+00:00",
+  "updatedAt": "2026-05-17T02:49:47.414249+00:00",
+  "metadata": {
+    "topic": "test"
+  },
+  "artifacts": []
+}
