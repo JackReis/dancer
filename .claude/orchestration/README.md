@@ -4,8 +4,11 @@ This repo is a **worker-tier target** under the Arbiter orchestration topology
 (see `=notes/AGENT_DESIGN.md` in the portfolio vault). Arbiter spawns isolated
 CC workers against worktrees of this repo to ship Linear-ticketed work as PRs.
 
-This directory contains the contract, settings, and bootstrap hooks that make
-those workers reproducible without depending on Jack's local filesystem.
+This directory is intended to house the contract, settings, and bootstrap hooks
+that make those workers reproducible without depending on Jack's local
+filesystem. Those files (`WORKER-CONTRACT.md`, `worker-settings.json`, the
+`contracts/` schemas, and `hooks/bootstrap.sh`) are currently maintained in the
+**Sinew** repository and are not yet vendored here.
 
 ## Files
 
@@ -40,7 +43,7 @@ denies the Bash patterns that would let them.
 
 ```bash
 # One-shot: index the repo and wire MCP for your local CC
-npx gitnexus analyze --skills    # generates .claude/skills/gitnexus/ (gitignored)
+npx gitnexus analyze --skills    # generates .claude/skills/gitnexus/ and .claude/skills/generated/ (both gitignored)
 npx gitnexus setup                # registers MCP for Cursor/CC/OpenCode/Codex
 ```
 
@@ -51,6 +54,6 @@ that anyone cloning the repo gets the same tool surface without per-user
 ## Logs
 
 Per the design doc, Arbiter writes forensic per-ticket traces to
-`claude/orchestration/tickets/<linear_id>/trace.jsonl`. That tree is created
+`.claude/orchestration/tickets/<linear_id>/trace.jsonl`. That tree is created
 on demand by Arbiter and is **not** part of this repo's source — it's runtime
 state owned by the orchestrator container.
