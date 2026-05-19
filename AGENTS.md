@@ -1,7 +1,7 @@
 # Agent Skills System
 
-**Last Updated:** May 16, 2026
-**Current Status:** 5 Jack-authored plugin packs, 26 skills total
+**Last Updated:** May 19, 2026
+**Current Status:** 5 Jack-authored plugin packs, 27 skills total
 
 ## Overview
 
@@ -20,7 +20,7 @@ Done = artifact + path + verification + commit + push + caveats. The evidence, n
 |---|---|---|---|
 | `autonomous-ai-agents` v0.4.0 | ai-agency | 3 + 2 MCP bridges | Fleet coordination: identity, hermes-bridge, openclaw-bridge |
 | `grill-each-other` v1.3.1 | skill-enhancers | 10 | Dialectic claim discipline: grill-me, peer-grill, fleet-ratify, permutation, etc. |
-| `athenaeum` v0.2.0 | skill-enhancers | 4 | Streamlined dialectic: design, reconcile, ratify, audit (curated alternative to grill-each-other) |
+| `athenaeum` v0.3.0 | skill-enhancers | 5 | Streamlined dialectic: design, reconcile, ratify, audit, arbiter-bridge |
 | `leonardo` v1.1.0 | ai-agency | 1 | Protected-string decoder with Discord audit |
 | `pocock-engineering` v1.0.0 | skill-enhancers | 8 | SDLC skills forked from Matt Pocock's framework |
 
@@ -45,7 +45,7 @@ version: 1.0.0                      # Dancer package/runtime field
 ## Current Metrics
 
 - **Total Plugins**: 5
-- **Total Skills**: 26
+- **Total Skills**: 27
 - **Schema Compliance**: 100%
 
 ## Plugin Developer Guide
