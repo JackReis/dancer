@@ -1,0 +1,7 @@
+{{#agents}}
+{{name}} {{#edges}}---|{{contract}}|-->{{to}}{{/edges}}
+{{/agents}}
+
+{{#agents}}
+style {{name}} fill:{{#ratified}}#4CAF50{{/ratified}}{{^ratified}}#FFC107{{/ratified}},stroke:{{#ratified}}#2E7D32{{/ratified}}{{^ratified}}#FF6F00{{/ratified}}
+{{/agents}}

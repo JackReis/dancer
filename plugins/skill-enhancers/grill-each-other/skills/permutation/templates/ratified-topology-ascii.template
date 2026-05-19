@@ -1,0 +1,11 @@
+Topology: {{title}}
+================================
+
+{{#relationships}}
+  {{from}} {{#dissent}}-X-{{/dissent}}{{^dissent}}---{{/dissent}} [{{contract}}] --> {{to}}
+{{/relationships}}
+
+Node Signatures:
+{{#agents}}
+  {{name}}: sig={{signature}}
+{{/agents}}
