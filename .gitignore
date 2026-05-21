@@ -83,3 +83,9 @@ _PRESERVE_MIGRATION/
 # Live realtime captures w/ session IDs + timestamps; per-machine. Not source.
 **/.claude/memories/project_memory.json
 **/.claude/memories/project_memory.lock
+
+# Arbiter writes per-ticket forensic traces under .claude/orchestration/tickets/.
+# Runtime state owned by the orchestrator; per-spawn. Not source.
+# `**/` prefix matches the nested-worktree spawn pattern in the orchestration
+# README (workers materialise in ../worktrees/<linear_id>/), consistent w/ L84-85.
+**/.claude/orchestration/tickets/
