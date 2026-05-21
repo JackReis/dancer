@@ -86,4 +86,6 @@ _PRESERVE_MIGRATION/
 
 # Arbiter writes per-ticket forensic traces under .claude/orchestration/tickets/.
 # Runtime state owned by the orchestrator; per-spawn. Not source.
-.claude/orchestration/tickets/
+# `**/` prefix matches the nested-worktree spawn pattern in the orchestration
+# README (workers materialise in ../worktrees/<linear_id>/), consistent w/ L84-85.
+**/.claude/orchestration/tickets/
