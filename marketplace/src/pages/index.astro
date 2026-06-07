@@ -22,9 +22,6 @@ const featuredPluginsSorted = featuredPlugins.sort((a, b) => {
   // Sugar third
   if (a.data.name === 'sugar') return -1;
   if (b.data.name === 'sugar') return 1;
-  // PI Pathfinder fourth
-  if (a.data.name === 'pi-pathfinder') return -1;
-  if (b.data.name === 'pi-pathfinder') return 1;
   return a.data.name.localeCompare(b.data.name);
 });
 
