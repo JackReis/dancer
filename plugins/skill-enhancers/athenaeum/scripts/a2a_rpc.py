@@ -21,10 +21,14 @@ from typing import Any
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 sys.path.insert(0, str(SCRIPT_DIR))
-from a2a_task import Task, TaskStatus, save_task, load_task  # noqa: E402
+from a2a_task import Task, TaskStatus, safe_path_segment, save_task, load_task  # noqa: E402
 
 def _tasks_root() -> Path:
     return Path(os.environ.get("ATHENAEUM_VAULT", Path.cwd())) / ".athenaeum"
+
+
+def _topic_root(topic: str) -> Path:
+    return _tasks_root() / safe_path_segment(topic)
 
 
 class A2AHandler(BaseHTTPRequestHandler):
@@ -77,13 +81,13 @@ class A2AHandler(BaseHTTPRequestHandler):
         task_data = params.get("task", {})
         task = Task.from_dict(task_data)
         topic = task.metadata.get("topic", "default")
-        save_task(task, _tasks_root() / topic)
+        save_task(task, _topic_root(topic))
         return {"task": task.to_dict()}
 
     def _tasks_get(self, params: dict[str, Any]) -> dict[str, Any]:
         task_id = params.get("id")
         topic = params.get("topic", "default")
-        path = _tasks_root() / topic / task_id / "task.json"
+        path = _topic_root(topic) / safe_path_segment(task_id) / "task.json"
         if not path.exists():
             raise ValueError(f"Task not found: {task_id}")
         task = load_task(path)
@@ -92,18 +96,18 @@ class A2AHandler(BaseHTTPRequestHandler):
     def _tasks_cancel(self, params: dict[str, Any]) -> dict[str, Any]:
         task_id = params.get("id")
         topic = params.get("topic", "default")
-        path = _tasks_root() / topic / task_id / "task.json"
+        path = _topic_root(topic) / safe_path_segment(task_id) / "task.json"
         if not path.exists():
             raise ValueError(f"Task not found: {task_id}")
         task = load_task(path)
         task.status = TaskStatus.CANCELED
-        save_task(task, _tasks_root() / topic)
+        save_task(task, _topic_root(topic))
         return {"task": task.to_dict()}
 
     def _tasks_send_subscribe(self, params: dict[str, Any], req_id: Any) -> None:
         task_id = params.get("id")
         topic = params.get("topic", "default")
-        path = _tasks_root() / topic / task_id / "task.json"
+        path = _topic_root(topic) / safe_path_segment(task_id) / "task.json"
         if not path.exists():
             self._send_json(200, {"jsonrpc": "2.0", "error": {"code": -32603, "message": "Task not found"}, "id": req_id})
             return

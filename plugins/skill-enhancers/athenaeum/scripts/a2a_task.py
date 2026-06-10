@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
@@ -27,6 +28,12 @@ class TaskStatus(str, Enum):
     COMPLETED = "completed"
     CANCELED = "canceled"
     FAILED = "failed"
+
+
+def safe_path_segment(value: str) -> str:
+    """Convert arbitrary user input into a filesystem-safe path segment."""
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip().replace("\\", "/")).strip("-._")
+    return cleaned or "default"
 
 
 @dataclass
@@ -89,7 +96,7 @@ class Task:
 
 
 def save_task(task: Task, topic_dir: Path) -> Path:
-    task_dir = topic_dir / task.id
+    task_dir = topic_dir / safe_path_segment(task.id)
     task_dir.mkdir(parents=True, exist_ok=True)
     task.updated_at = datetime.now(timezone.utc).isoformat()
     path = task_dir / "task.json"
@@ -108,7 +115,7 @@ def init_task(
     round_budget: int = 3,
     formality: str = "quick",
 ) -> Task:
-    task_id = f"athenaeum-{mode}-{topic}-{uuid.uuid4().hex[:8]}"
+    task_id = f"athenaeum-{mode}-{safe_path_segment(topic)}-{uuid.uuid4().hex[:8]}"
     return Task(
         id=task_id,
         session_id=session_id or f"{os.environ.get('USER', 'agent')}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}",
