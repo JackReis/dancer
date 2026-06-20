@@ -764,3 +764,13 @@ This repository is listed under GitNexus **group(s): fleet** (see `~/.gitnexus/g
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Memory Architecture
+
+This repo follows the Claude-native two-tier memory model. **SSOT:** `=notes/docs/conventions/agent-memory-architecture.md`.
+
+- **Instruction tier** — this `CLAUDE.md` (always loaded; the stable policy layer).
+- **Recalled tier** — `memory/` at the repo root: a pointer-only `MEMORY.md` index (one line per fact, no inline fact content) plus single-fact `<slug>.md` files. Each fact file carries frontmatter (`name`, `description`, `metadata.type`) with provenance. Read `MEMORY.md` every session; load fact bodies on demand. Write the fact file and its index pointer together; dedupe-before-create.
+
+**Legacy artifact (tolerated, not the conformant home):** `.claude/memories/project_memory.json` is machine-managed JSON owned and re-dirtied by Claude Code hooks. Do **not** hand-edit, move, or delete it. The markdown `memory/` tier above is the conformant recalled-memory home; the JSON is a tolerated runtime artifact.
+
