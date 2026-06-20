@@ -1,0 +1,31 @@
+{
+  "name": "pai-reasoning",
+  "version": "0.1.0",
+  "description": "Structured reasoning skills ported from PAI v5.0.0 (Daniel Miessler's Personal AI Infrastructure): IterativeDepth, FirstPrinciples, SystemsThinking, RootCauseAnalysis, BitterPillEngineering, and tier-2 reasoning skills. De-PAI'd for the dancer ecosystem — no voice curls, no ComposeAgent.ts, no execution.jsonl. Credits PAI upstream.",
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "keywords": [
+    "reasoning",
+    "thinking",
+    "iterative-depth",
+    "first-principles",
+    "systems-thinking",
+    "root-cause-analysis",
+    "bitter-pill",
+    "pai",
+    "skill-enhancer",
+    "byom"
+  ],
+  "category": "skill-enhancers",
+  "status": "active",
+  "tier": "free",
+  "upstream": {
+    "source": "PAI v5.0.0 by Daniel Miessler",
+    "url": "https://github.com/danielmiessler/PAI",
+    "vendored_at": "resources/upstream-verbatim/pai-v5.0.0/skills/"
+  }
+}
