@@ -7,6 +7,7 @@ const pluginsCollection = defineCollection({
     description: z.string(),
     version: z.string(),
     category: z.enum([
+      'ai-agency',
       'automation',
       'business-tools',
       'devops',

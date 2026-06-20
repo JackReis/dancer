@@ -1,0 +1,41 @@
+{
+  "name": "grill-each-other",
+  "description": "Dialectic claim discipline for AI agents: scholastic vocabulary, peer-grill file-based reconciliation, runnable verifiers/falsifiers, multi-agent ratification, fleet-ratify N-agent attestation, permutation NxN fleet topology ratification. Synthesis: an unexamined claim does not exist.",
+  "version": "1.3.1",
+  "category": "skill-enhancers",
+  "keywords": [
+    "dialectic",
+    "peer-grill",
+    "scholastic",
+    "verification",
+    "consciousness",
+    "tipi",
+    "observer-principle",
+    "skill-enhancer",
+    "multi-agent",
+    "byom",
+    "fleet-ratify",
+    "ratification",
+    "attestation",
+    "permutation",
+    "fleet-topology"
+  ],
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "featured": true,
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "installation": "/plugin marketplace add JackReis/dancer",
+  "features": [
+    "Scholastic vocabulary for claim discipline",
+    "Peer-grill file-based reconciliation",
+    "Runnable verifiers and falsifiers",
+    "Multi-agent ratification",
+    "N-agent fleet attestation",
+    "NxN fleet topology permutation"
+  ],
+  "requirements": [],
+  "screenshots": []
+}

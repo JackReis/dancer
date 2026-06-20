@@ -1,0 +1,48 @@
+{
+  "name": "autonomous-ai-agents",
+  "description": "Claude Code's on-ramp to Jack's fleet-coordination primitives. Fleet-identity (who runs Wings/Zoe/Mara/Kopi). Hermes (Wings) messaging bridge via 'hermes mcp serve' (10 tools). OpenClaw (OLIVIER_MBP/Zoe) messaging bridge via 'openclaw mcp serve' (9 tools, Klawz boundaries). Fleet-ratify: N-agent attestation for converged artifacts.",
+  "version": "0.4.0",
+  "category": "ai-agency",
+  "keywords": [
+    "fleet",
+    "identity",
+    "agents",
+    "hermes",
+    "wings",
+    "olivier",
+    "zoe",
+    "openclaw",
+    "kimiclaw",
+    "mara",
+    "kopi",
+    "klawz",
+    "discord",
+    "telegram",
+    "slack",
+    "whatsapp",
+    "signal",
+    "matrix",
+    "mcp",
+    "messaging",
+    "coordination",
+    "tipi",
+    "ratification",
+    "fleet-ratify"
+  ],
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "featured": true,
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "installation": "/plugin marketplace add JackReis/dancer",
+  "features": [
+    "Fleet identity management",
+    "Hermes MCP bridge (10 tools)",
+    "OpenClaw MCP bridge (9 tools)",
+    "N-agent fleet ratification"
+  ],
+  "requirements": [],
+  "screenshots": []
+}

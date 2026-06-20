@@ -1,0 +1,30 @@
+{
+  "name": "leonardo",
+  "description": "Encode or decode mirror-scripted protected strings (left-hand write + right-hand read) with Discord audit signals (tattle) on every operation.",
+  "version": "1.1.0",
+  "category": "ai-agency",
+  "keywords": [
+    "mirror-script",
+    "encode",
+    "decode",
+    "protected-strings",
+    "discord",
+    "audit",
+    "tattle"
+  ],
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "featured": false,
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "installation": "/plugin marketplace add JackReis/dancer",
+  "features": [
+    "Mirror-scripted string encoding",
+    "Mirror-scripted string decoding",
+    "Discord audit signals on every operation"
+  ],
+  "requirements": [],
+  "screenshots": []
+}

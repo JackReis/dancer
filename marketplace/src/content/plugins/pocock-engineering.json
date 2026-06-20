@@ -1,0 +1,38 @@
+{
+  "name": "pocock-engineering",
+  "description": "Engineering lifecycle skills forked from Matt Pocock's framework: SDLC scaffolding (setup-matt-pocock-skills), test-driven development (tdd), plan-to-issues decomposition (to-issues), context-to-PRD (to-prd), issue triage state machine (triage), disciplined diagnosis (diagnose), architecture deepening (improve-codebase-architecture), and zoom-out perspective (zoom-out). Run setup-matt-pocock-skills first to configure your repo before using the others.",
+  "version": "1.0.0",
+  "category": "skill-enhancers",
+  "keywords": [
+    "tdd",
+    "triage",
+    "prd",
+    "diagnosis",
+    "architecture",
+    "engineering",
+    "sdlc",
+    "pocock",
+    "skill-enhancer",
+    "byom"
+  ],
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "featured": true,
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "installation": "/plugin marketplace add JackReis/dancer",
+  "features": [
+    "SDLC scaffolding",
+    "Test-driven development",
+    "Plan-to-issues decomposition",
+    "Context-to-PRD",
+    "Issue triage state machine",
+    "Disciplined diagnosis",
+    "Architecture deepening",
+    "Zoom-out perspective"
+  ],
+  "requirements": [],
+  "screenshots": []
+}
