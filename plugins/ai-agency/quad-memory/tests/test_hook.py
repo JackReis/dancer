@@ -64,4 +64,6 @@ def test_hook_is_fail_open(monkeypatch):
 def test_empty_stdin_is_safe(monkeypatch):
     mod = _load()
     monkeypatch.setattr(sys, "stdin", io.StringIO(""))
+    # Mock quad.capture so we don't hit live services
+    monkeypatch.setattr(mod.quad, "capture", lambda *a, **k: [])
     assert mod.main(["--event", "stop"]) == 0
