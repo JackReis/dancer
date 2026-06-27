@@ -1,0 +1,6 @@
+{
+  "name": "quad-memory",
+  "version": "0.1.0",
+  "description": "Per-turn quad-plane memory for Claude Code: Hindsight + Holographic + Honcho + OBn. The Claude Code analogue of Hermes' triple-memory stack.",
+  "author": "Jack Reis"
+}
