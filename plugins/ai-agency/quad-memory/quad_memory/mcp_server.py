@@ -16,10 +16,20 @@ Tools:
 
 from __future__ import annotations
 
+import sys
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
-from quad_memory import quad, holographic, hindsight, obn, honcho_plane
+# Make `quad_memory` importable when launched as a standalone script (the way
+# .mcp.json runs it: `python3 .../quad_memory/mcp_server.py`). That puts the
+# `quad_memory/` dir on sys.path[0], NOT the plugin root (its package parent),
+# so the package import below fails without this shim. Mirrors hooks/quad_memory_hook.py.
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+if str(PLUGIN_ROOT) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_ROOT))
+
+from quad_memory import quad, holographic, hindsight, obn, honcho_plane  # noqa: E402
 
 
 # --- Tool handlers (pure, serializable-dict returns; unit-tested directly) ----
@@ -140,6 +150,11 @@ async def _run() -> None:
 
 
 def main() -> None:
+    # --selftest: prove the standalone launch reaches its imports (the way
+    # .mcp.json runs the script). Exits 0 without starting the stdio transport.
+    if "--selftest" in sys.argv:
+        print("quad-memory mcp ok")
+        return
     import asyncio
     asyncio.run(_run())
 
