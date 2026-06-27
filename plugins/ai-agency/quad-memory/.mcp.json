@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "quad-memory": {
+      "command": "/Users/jack.reis/Documents/=notes/.venv/bin/python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/quad_memory/mcp_server.py"]
+    }
+  }
+}
