@@ -26,7 +26,8 @@ from quad_memory.core import PlaneResult, TurnMemory, reject_secret_content
 
 HONCHO_BASE_URL = os.environ.get("HONCHO_BASE_URL", "http://127.0.0.1:8000")
 HONCHO_WORKSPACE = os.environ.get("HONCHO_WORKSPACE", "hermes")
-HONCHO_HUMAN_PEER = os.environ.get("HONCHO_HUMAN_PEER", "jack.reis")
+# Honcho peer names must match ^[a-zA-Z0-9_-]+$ — dots are rejected by the server.
+HONCHO_HUMAN_PEER = os.environ.get("HONCHO_HUMAN_PEER", "jack_reis")
 HONCHO_AI_PEER = os.environ.get("HONCHO_AI_PEER", "claude-code")
 HONCHO_SESSION = os.environ.get("HONCHO_SESSION", "claude-code-global")
 HONCHO_REASONING = os.environ.get("HONCHO_REASONING_LEVEL", "medium")
