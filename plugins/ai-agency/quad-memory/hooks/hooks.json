@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/jack.reis/Documents/=notes/.venv/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/quad_memory_hook.py --event user-prompt-submit --source claude-code --limit 5"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/jack.reis/Documents/=notes/.venv/bin/python3 ${CLAUDE_PLUGIN_ROOT}/hooks/quad_memory_hook.py --event stop --source claude-code --limit 5"
+          }
+        ]
+      }
+    ]
+  }
+}
