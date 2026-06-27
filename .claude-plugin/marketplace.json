@@ -10,9 +10,9 @@
     "version": "1.4.0",
     "homepage": "https://github.com/JackReis/dancer",
     "pluginRoot": "./plugins",
-    "totalPlugins": 5,
+    "totalPlugins": 6,
     "skillsEnabled": 26,
-    "lastUpdated": "2026-05-16"
+    "lastUpdated": "2026-06-26"
   },
   "plugins": [
     {
@@ -142,6 +142,36 @@
         "multi-agent",
         "skill-enhancer",
         "byom"
+      ],
+      "author": {
+        "name": "Jack Reis",
+        "email": "jackareis@gmail.com"
+      },
+      "license": "MIT",
+      "repository": "https://github.com/JackReis/dancer",
+      "tier": "free",
+      "status": "active"
+    },
+    {
+      "name": "quad-memory",
+      "source": "./plugins/ai-agency/quad-memory",
+      "description": "Per-turn quad-plane memory for Claude Code: Hindsight + Holographic + Honcho + OBn. The Claude Code analogue of Hermes' triple-memory stack, extended to four planes. Per-turn hooks (UserPromptSubmit brief, Stop capture), an MCP server (memory-status/brief/capture/ask/search), and slash commands. Honcho's Dialectic API synthesizes what the fleet brain knows about Jack relevant to the prompt; every plane fails open.",
+      "version": "0.1.0",
+      "category": "ai-agency",
+      "keywords": [
+        "memory",
+        "quad-memory",
+        "honcho",
+        "hindsight",
+        "holographic",
+        "obn",
+        "dialectic",
+        "per-turn",
+        "fleet",
+        "hooks",
+        "mcp",
+        "recall",
+        "capture"
       ],
       "author": {
         "name": "Jack Reis",
