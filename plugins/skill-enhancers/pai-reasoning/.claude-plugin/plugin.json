@@ -1,0 +1,26 @@
+{
+  "name": "pai-reasoning",
+  "version": "1.0.0",
+  "description": "Structured reasoning skills adapted from PAI v5.0.0: epistemic discipline, multi-angle exploration, first-principles deconstruction, systems thinking, root-cause methodology, and over-prompting audit. De-PAI'd for Jack's multi-agent fleet — no Pulse daemon, no bun runtime, no permission bypass.",
+  "author": {
+    "name": "Jack Reis",
+    "email": "jackareis@gmail.com"
+  },
+  "repository": "https://github.com/JackReis/dancer",
+  "license": "MIT",
+  "keywords": [
+    "pai",
+    "reasoning",
+    "epistemics",
+    "iterative-depth",
+    "first-principles",
+    "systems-thinking",
+    "root-cause-analysis",
+    "bitter-pill-engineering",
+    "skill-enhancer",
+    "byom"
+  ],
+  "category": "skill-enhancers",
+  "status": "active",
+  "tier": "free"
+}
