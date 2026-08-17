@@ -182,6 +182,134 @@ For N-agent consensus or ratification of a single artifact, use the **`fleet-rat
 
 Pairwise reconciliations in a chain (A↔B, then merged↔C) are still supported in `peer-grill` for broad state sync, but for formal decision-making by the whole fleet, `fleet-ratify` is the preferred path. Document the chain order in `grill-log.md` if using the chain method.
 
+## Consensus Governor (ConsensusManager)
+
+The `consensus_manager.py` module provides the `ConsensusManager` class — the protocol governor that analyzes the immutable grill log to diagnose the current level of consensus, identify points of divergence, and suggest the next most valuable intellectual action.
+
+### Role
+
+- Reads the grill log via `ClaimsStateManager.get_history()`
+- Computes a divergence score from contradiction markers and log volume
+- Classifies the session into one of three states: `DEADLOCK`, `NEAR_CONSENSUS`, or `OPEN_DISPUTE`
+- Recommends next actions: continue grilling, trigger external skill calls (e.g. `gitnexus-impact-analysis`), or proceed to final ratification
+
+### States
+
+| State | Divergence Score | Meaning | Recommended Action |
+|---|---|---|---|
+| `DEADLOCK` | > 0.8 | Claims are fundamentally irreducible via pure dialectic | Require external proof (system test, knowledge graph query) |
+| `NEAR_CONSENSUS` | < 0.3 + sustained effort | Persistent agreement on core axioms | Trigger `final_ratification()` |
+| `OPEN_DISPUTE` | 0.3–0.8 | Active, productive debate | Continue grilling on specific points of contention |
+
+The ConsensusManager is not a decision-maker — it is a diagnostic tool. It surfaces the state; the agents (and ultimately the human) decide.
+
+## Modular Dependency Graph
+
+The peer-grill skill is implemented as a set of Python modules with clear dependencies:
+
+```
+core.py
+├── state_manager.py   (ClaimsStateManager: append-only log ledger)
+├── crypto_utils.py    (AttestationManager: SHA256 hashing, ratification)
+├── dialectics.py      (DialecticProcessor: thesis/antithesis/synthesis structuring)
+└── consensus_manager.py → state_manager.py  (ConsensusManager: divergence analysis)
+```
+
+**Module responsibilities:**
+
+| Module | Class | Responsibility |
+|---|---|---|
+| `state_manager.py` | `ClaimsStateManager` | Append-only log file management; claim dumping; history retrieval; log trimming |
+| `crypto_utils.py` | `AttestationManager` | SHA256 hashing of claims and log state; re-attestation after each round; final ratification hash generation |
+| `dialectics.py` | `DialecticProcessor` | Structural analysis of claims; classification into Thesis/Antithesis/Quaestio/Aporia; formal challenge formatting |
+| `consensus_manager.py` | `ConsensusManager` | Divergence scoring; consensus state diagnosis; next-action recommendation |
+| `core.py` | (entry point) | Session initialization; grilling cycle orchestration; ratification finalization; `run_peer_grill()` entry point |
+
+**Scripts** (in `scripts/`): `peer_grill_init.sh`, `peer_grill_diff.py`, `peer_grill_check_convergence.py`, `peer_grill_signoff.py`, `peer_grill_grade.py`, `peer_grill_fingerprint.py` — CLI wrappers for protocol phases.
+
+**Templates** (in `templates/`): `claims.yaml.template`, `system-prompt-for-non-claude-peer.md`.
+
+**Schemas** (in `schemas/`): `claims.schema.json` — JSON Schema for validating claims.yaml files.
+
+## Required Input Structure
+
+Every peer-grill session requires these inputs before the protocol can begin (see Setup, Phase 1):
+
+### Session parameters (human-provided)
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `topic` | kebab-slug | Yes | — | What state is being reconciled (e.g. `pricing-decisions`, `infra-state`) |
+| `self` (agent identity) | kebab-slug | Yes | — | This agent's unique name (e.g. `claude-laptop`, `cursor-mac`) |
+| `peer` (peer identity) | kebab-slug | Yes | — | The other agent's unique name |
+| `scope` | list of strings | Yes | — | Claim categories: `infra`, `code`, `decision`, `open-work`, etc. |
+| `round_budget` | integer | No | 3 | Max grilling rounds per disputed claim before `ESCALATE` |
+| `poll_timeout_minutes` | integer | No | 30 | Wall-clock budget for Phase 2 and Phase 5 polls |
+
+### Claims file (`<agent>.claims.yaml`)
+
+Each agent independently writes a claims file following this schema (validated by `schemas/claims.schema.json`):
+
+```yaml
+agent: <agent-name>              # required, unique across peers
+session_started: <ISO8601>       # required
+scope: [<category>, ...]         # required, must match declared scopes
+claims:                          # required, can be empty list
+  - id: <stable-slug>            # required, same id across agents = same subject
+    statement: <one sentence>    # required
+    confidence: high|medium|low  # required
+    source: <verifiable source>  # required for high confidence
+    scope: <category>            # required, must be in declared scopes
+    last_verified: <ISO8601>     # required, or "unknown"
+```
+
+**Confidence rules:**
+- `high` requires a checkable source (file path + line, command output, signed-off doc)
+- `medium` = inferred from possibly-stale signal
+- `low` = guess with no source
+
+## Final Output Artifact
+
+The terminal deliverable of a successful peer-grill session is `state.merged.yaml` — the converged ground truth, written by the merge writer in Phase 5 and attested by both peers in Phase 6.
+
+### Format
+
+```yaml
+topic: <topic-slug>
+ratified_at: <ISO8601>
+peers: [<agent-a>, <agent-b>]
+claims:
+  - id: <stable-slug>
+    statement: <agreed statement>
+    sources: [<source from agent-a>, <source from agent-b>]
+    scope: <category>
+```
+
+### What it contains
+
+- All claims from the **agreed** bucket (same id, same statement across peers) — merged directly, no grill loop required
+- All claims from the **disagreed** and **only-one-knows** buckets that were **ratified** (both peers wrote matching `RATIFY:` lines in `grill-log.md`)
+- Both peers' source citations preserved side-by-side (deduplicated when identical)
+
+### What it does NOT contain
+
+- Claims that were **escalated** (round budget exhausted without convergence) — these go to `unresolved.md` instead
+- Claims outside the declared scopes (filtered before diffing)
+- Per-agent metadata (confidence, session_started) — the merged state is the agreed truth, not the process
+
+### Integrity
+
+The `state.merged.yaml` file is attested by both peers via SHA256 in `signoff.md`. The hash is computed after LF-normalizing the file content. Mismatched hashes trigger the Phase 6 iteration protocol; three consecutive mismatches emit `INTEGRITY-FAIL: iter-loop`.
+
+### Companion artifacts
+
+| File | Content |
+|---|---|
+| `unresolved.md` | Disputes that didn't converge; both positions recorded |
+| `signoff.md` | Identity + timestamp + sha256 attestations from both peers |
+| `grill-log.md` | Full Q&A transcript with timestamps and agent identity |
+| `diff.md` | Three-bucket diff: agreed / disagreed / only-one-knows |
+
 ## Guardrails
 
 - **Never** silently accept a one-sided claim. `only-one-knows` items must be grilled at least once.
