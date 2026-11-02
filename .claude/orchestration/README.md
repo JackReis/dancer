@@ -18,7 +18,7 @@ filesystem. Those files (`WORKER-CONTRACT.md`, `worker-settings.json`, the
 | `worker-settings.json` | Minimal CC `settings.json` template for autonomous workers spawned by Hermes |
 | `contracts/dispatch_envelope.schema.json` | JSON schema for `n8n → Arbiter → worker` dispatch payload |
 | `contracts/proof_of_work.schema.json` | JSON schema for `worker → Arbiter` completion payload |
-| `hooks/bootstrap.sh` | Worktree self-bootstrap — handles GitNexus availability hazard (branch-13 risk note) |
+| `hooks/bootstrap.sh` | Worktree self-bootstrap for ordinary dependency setup; no automatic GitNexus step |
 
 ## Spawn protocol (Hermes → CC worker)
 
@@ -32,7 +32,7 @@ claude code \
   --settings .claude/orchestration/worker-settings.json \
   --dispatch-envelope <dispatch_envelope.json>
 
-# 3. Worker runs bootstrap (gitnexus index, dep install) before touching code
+# 3. Worker runs ordinary dependency bootstrap before touching code (no automatic indexing)
 .claude/orchestration/hooks/bootstrap.sh
 ```
 
@@ -40,6 +40,8 @@ Workers MUST NOT reach outside their worktree. The worker-settings profile
 denies the Bash patterns that would let them.
 
 ## Quickstart (humans / local dev)
+
+GitNexus is optional, only when explicitly requested, and is not part of worker bootstrap or an editing/commit gate. The following is an opt-in reference, not a setup prerequisite. Do not run it or reindex automatically.
 
 ```bash
 # One-shot: index the repo and wire MCP for your local CC
